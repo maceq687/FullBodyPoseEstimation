@@ -1,4 +1,11 @@
 {
+  "scopedRegistries": [
+    {
+        "name": "creativeikep",
+        "url": "https://registry.npmjs.com",
+        "scopes": [ "jp.ikep" ]
+    }
+  ],
   "dependencies": {
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.2.1",
@@ -42,6 +49,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "jp.ikep.mediapipe.blazepose": "1.2.0"
   }
 }
