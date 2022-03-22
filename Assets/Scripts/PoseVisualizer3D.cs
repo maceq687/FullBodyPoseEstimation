@@ -28,6 +28,8 @@ public class PoseVisualizer3D : MonoBehaviour
         new Vector4(24, 26), new Vector4(26, 28), new Vector4(28, 30), new Vector4(30, 32), new Vector4(32, 28)
     };
 
+    public Vector3 nose = Vector3.zero;
+
 
     void Start(){
         material = new Material(shader);
@@ -35,7 +37,7 @@ public class PoseVisualizer3D : MonoBehaviour
     }
 
     void Update(){
-        mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, 0.1f);
+        // mainCamera.transform.RotateAround(Vector3.zero, Vector3.up, 0.1f);
     }
 
     void LateUpdate(){
@@ -60,6 +62,8 @@ public class PoseVisualizer3D : MonoBehaviour
             // Debug.LogFormat("{0}: {1}", i, detecter.GetPoseWorldLandmark(i));
         }
         // Debug.Log("---");
+        nose = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
+        
     } 
 
     void OnRenderObject(){
