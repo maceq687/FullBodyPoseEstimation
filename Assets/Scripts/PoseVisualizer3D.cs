@@ -28,7 +28,9 @@ public class PoseVisualizer3D : MonoBehaviour
         new Vector4(24, 26), new Vector4(26, 28), new Vector4(28, 30), new Vector4(30, 32), new Vector4(32, 28)
     };
 
-    public Vector3 nose = Vector3.zero;
+    public Vector3 head = Vector3.zero;
+    public Vector3 leftHand = Vector3.zero;
+    public Vector3 rightHand = Vector3.zero;
 
 
     void Start(){
@@ -62,7 +64,9 @@ public class PoseVisualizer3D : MonoBehaviour
             // Debug.LogFormat("{0}: {1}", i, detecter.GetPoseWorldLandmark(i));
         }
         // Debug.Log("---");
-        nose = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
+        head = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
+        leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
+        rightHand =new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
         
     } 
 

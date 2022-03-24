@@ -5,6 +5,7 @@ public class WebCamInput : MonoBehaviour
     [SerializeField] string webCamName;
     [SerializeField] Vector2 webCamResolution = new Vector2(1920, 1080);
     [SerializeField] Texture staticInput;
+    public bool mirrorHorizontally = false;
 
     // Provide input image Texture.
     public Texture inputImageTexture{
@@ -35,7 +36,8 @@ public class WebCamInput : MonoBehaviour
         var aspect1 = (float)webCamTexture.width / webCamTexture.height;
         var aspect2 = (float)inputRT.width / inputRT.height;
         var aspectGap = aspect2 / aspect1;
-
+        var hMirrored = mirrorHorizontally ? -1 : 1;
+        aspectGap = aspectGap * hMirrored;
         var vMirrored = webCamTexture.videoVerticallyMirrored;
         var scale = new Vector2(aspectGap, vMirrored ? -1 : 1);
         var offset = new Vector2((1 - aspectGap) / 2, vMirrored ? 1 : 0);

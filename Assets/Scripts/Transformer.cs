@@ -17,7 +17,7 @@ public class Transformer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        newReference = poseVisualiser.nose;
+        newReference = poseVisualiser.head;
         gameObject.transform.position = newReference;
     }
 }
