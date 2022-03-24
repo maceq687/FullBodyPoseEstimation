@@ -66,8 +66,13 @@ public class PoseVisualizer3D : MonoBehaviour
         }
         // Debug.Log("---");
         head = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
-        leftHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
-        rightHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
+        leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
+        rightHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+
+        head = MirrorVector(head);
+        leftHand = MirrorVector(leftHand);
+        leftHand = MirrorVector(leftHand);
+
         bpPose[0] = head;
         bpPose[1] = leftHand;
         bpPose[2] = rightHand;
@@ -95,5 +100,11 @@ public class PoseVisualizer3D : MonoBehaviour
     void OnApplicationQuit(){
         // Must call Dispose method when no longer in use.
         detecter.Dispose();
+    }
+
+    private Vector3 MirrorVector(Vector3 input){
+        Vector3 mirror = new Vector3(-1, 1, -1);
+        Vector3 output = Vector3.Scale(input, mirror);
+        return output;
     }
 }
