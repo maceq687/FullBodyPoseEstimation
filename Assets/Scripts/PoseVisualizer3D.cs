@@ -32,6 +32,7 @@ public class PoseVisualizer3D : MonoBehaviour
     public Vector3 leftHand = Vector3.zero;
     public Vector3 rightHand = Vector3.zero;
     public Vector3[] bpPose = new Vector3[3];
+    public Vector3 centroidPoint = Vector3.zero;
 
 
     void Start(){
@@ -69,9 +70,12 @@ public class PoseVisualizer3D : MonoBehaviour
         leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
         rightHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
 
-        head = MirrorVector(head);
-        leftHand = MirrorVector(leftHand);
-        leftHand = MirrorVector(leftHand);
+        Vector3[] points = {head, leftHand, rightHand};
+        centroidPoint = calculateCentroid(points);
+
+        // head = MirrorVector(head);
+        // leftHand = MirrorVector(leftHand);
+        // leftHand = MirrorVector(leftHand);
 
         bpPose[0] = head;
         bpPose[1] = leftHand;
@@ -106,5 +110,17 @@ public class PoseVisualizer3D : MonoBehaviour
         Vector3 mirror = new Vector3(-1, 1, -1);
         Vector3 output = Vector3.Scale(input, mirror);
         return output;
+    }
+
+    private Vector3 calculateCentroid(Vector3[] centerPoints){
+        Vector3 centroid = Vector3.zero;
+        int numPoints = centerPoints.Length;
+        foreach (Vector3 point in centerPoints){
+            centroid += point;
+        }
+        
+        centroid /= numPoints;
+        
+        return centroid;
     }
 }

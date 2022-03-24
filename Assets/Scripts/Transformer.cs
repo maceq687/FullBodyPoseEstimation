@@ -2,22 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LeftHandTransformer : MonoBehaviour
+public class Transformer : MonoBehaviour
 {
     public GameObject obj;
     public Vector3 newReference = Vector3.zero;
     private PoseVisualizer3D poseVisualizer;
+    public string point;
 
-    // Start is called before the first frame update
     void Start()
     {
         poseVisualizer = obj.GetComponent<PoseVisualizer3D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        newReference = poseVisualizer.leftHand;
+        newReference = (Vector3)poseVisualizer.GetType().GetField(point)?.GetValue(poseVisualizer);
         gameObject.transform.position = newReference;
     }
 }
