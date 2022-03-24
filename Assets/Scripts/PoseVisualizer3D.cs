@@ -66,8 +66,8 @@ public class PoseVisualizer3D : MonoBehaviour
         }
         // Debug.Log("---");
         head = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
-        leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
-        rightHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+        leftHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+        rightHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
         bpPose[0] = head;
         bpPose[1] = leftHand;
         bpPose[2] = rightHand;
