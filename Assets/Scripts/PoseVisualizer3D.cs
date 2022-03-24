@@ -31,6 +31,7 @@ public class PoseVisualizer3D : MonoBehaviour
     public Vector3 head = Vector3.zero;
     public Vector3 leftHand = Vector3.zero;
     public Vector3 rightHand = Vector3.zero;
+    public Vector3[] bpPose = new Vector3[3];
 
 
     void Start(){
@@ -66,7 +67,10 @@ public class PoseVisualizer3D : MonoBehaviour
         // Debug.Log("---");
         head = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
         leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
-        rightHand =new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+        rightHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+        bpPose[0] = head;
+        bpPose[1] = leftHand;
+        bpPose[2] = rightHand;
         
     } 
 
