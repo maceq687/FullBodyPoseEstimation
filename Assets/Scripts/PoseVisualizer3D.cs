@@ -72,6 +72,14 @@ public class PoseVisualizer3D : MonoBehaviour
 
         Vector3[] points = {head, leftHand, rightHand};
         centroidPoint = calculateCentroid(points);
+        
+        // Calculate vector "hands", the line between hands
+        Vector3 hands = leftHand - rightHand;
+        // Calculate vector "forehead", the line between the middle point between hands and the head
+        Vector3 forehead = Vector3.Lerp(leftHand, rightHand, 0.5f) - head;
+        // Calculate rotation
+        Quaternion rotation = Quaternion.LookRotation(hands, forehead);
+        
 
         // head = MirrorVector(head);
         // leftHand = MirrorVector(leftHand);
