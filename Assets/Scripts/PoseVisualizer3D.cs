@@ -28,11 +28,12 @@ public class PoseVisualizer3D : MonoBehaviour
         new Vector4(24, 26), new Vector4(26, 28), new Vector4(28, 30), new Vector4(30, 32), new Vector4(32, 28)
     };
 
-    public Vector3 head = Vector3.zero;
-    public Vector3 leftHand = Vector3.zero;
-    public Vector3 rightHand = Vector3.zero;
+    public Vector3 headPosition = Vector3.zero;
+    public Vector3 leftHandPosition = Vector3.zero;
+    public Vector3 rightHandPosition = Vector3.zero;
     public Vector3[] bpPose = new Vector3[3];
-    public Vector3 centroidPoint = Vector3.zero;
+    public Vector3 centroidPointPosition = Vector3.zero;
+    public Quaternion centroidPointRotation;
 
 
     void Start(){
@@ -66,28 +67,28 @@ public class PoseVisualizer3D : MonoBehaviour
             // Debug.LogFormat("{0}: {1}", i, detecter.GetPoseWorldLandmark(i));
         }
         // Debug.Log("---");
-        head = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
-        leftHand = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
-        rightHand = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
+        headPosition = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
+        leftHandPosition = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
+        rightHandPosition = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
 
-        Vector3[] points = {head, leftHand, rightHand};
-        centroidPoint = calculateCentroid(points);
+        Vector3[] points = {headPosition, leftHandPosition, rightHandPosition};
+        centroidPointPosition = calculateCentroid(points);
         
         // Calculate vector "hands", the line between hands
-        Vector3 hands = leftHand - rightHand;
-        // Calculate vector "forehead", the line between the middle point between hands and the head
-        Vector3 forehead = Vector3.Lerp(leftHand, rightHand, 0.5f) - head;
+        Vector3 hands = leftHandPosition - rightHandPosition;
+        // Calculate vector "forehead", the line between the head and head projection on the "hands" vector
+        Vector3 forehead = Vector3.Project((headPosition - rightHandPosition), (leftHandPosition - rightHandPosition)) + rightHandPosition - headPosition;
         // Calculate rotation
-        Quaternion rotation = Quaternion.LookRotation(hands, forehead);
+        centroidPointRotation = Quaternion.LookRotation(hands, forehead);
         
 
-        // head = MirrorVector(head);
-        // leftHand = MirrorVector(leftHand);
-        // leftHand = MirrorVector(leftHand);
+        headPosition = MirrorVector(headPosition);
+        leftHandPosition = MirrorVector(leftHandPosition);
+        rightHandPosition = MirrorVector(rightHandPosition);
 
-        bpPose[0] = head;
-        bpPose[1] = leftHand;
-        bpPose[2] = rightHand;
+        bpPose[0] = headPosition;
+        bpPose[1] = leftHandPosition;
+        bpPose[2] = rightHandPosition;
         
     } 
 
