@@ -1107,8 +1107,6 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
-  centroidPointPosition: {x: 0, y: 0, z: 0}
-  centroidPointRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &665595554
 Transform:
   m_ObjectHideFlags: 0
@@ -1284,11 +1282,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bfd2ee55b42ca74bb6d5bdd15f51e89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 665595552}
+  obj: {fileID: 1148301135}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
-  referencePointPosition: centroidPointPosition
-  referencePointRotation: centroidPointRotation
+  referencePointPosition: poseCentroidPointPosition
+  referencePointRotation: poseCentroidPointRotation
 --- !u!65 &873292668
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1559,7 +1557,7 @@ MonoBehaviour:
   webCamName: 
   webCamResolution: {x: 1920, y: 1080}
   staticInput: {fileID: 0}
-  mirrorHorizontally: 1
+  mirrorHorizontally: 0
 --- !u!4 &1117257305
 Transform:
   m_ObjectHideFlags: 0
@@ -1588,7 +1586,7 @@ GameObject:
   - component: {fileID: 1148301138}
   - component: {fileID: 1148301137}
   m_Layer: 0
-  m_Name: QuestCentroidCube
+  m_Name: AlignPose
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1620,8 +1618,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1c6dd3620afb3141873b0233748496c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centroidPointPosition: {x: 0, y: 0, z: 0}
-  centroidPointRotation: {x: 0, y: 0, z: 0, w: 0}
+  obj: {fileID: 665595552}
+  headPosition: {x: 0, y: 0, z: 0}
+  leftHandPosition: {x: 0, y: 0, z: 0}
+  rightHandPosition: {x: 0, y: 0, z: 0}
+  vrRigCentroidPointPosition: {x: 0, y: 0, z: 0}
+  vrRigCentroidPointRotation: {x: 0, y: 0, z: 0, w: 0}
+  poseCentroidPointPosition: {x: 0, y: 0, z: 0}
+  poseCentroidPointRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!65 &1148301138
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2317,7 +2321,7 @@ RectTransform:
   m_GameObject: {fileID: 1401591564}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 5}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 1}
+  m_LocalScale: {x: -0.01, y: 0.01, z: 1}
   m_Children: []
   m_Father: {fileID: 492254324}
   m_RootOrder: 0
@@ -3437,7 +3441,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bfd2ee55b42ca74bb6d5bdd15f51e89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 665595552}
+  obj: {fileID: 1148301135}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   referencePointPosition: headPosition
@@ -3738,7 +3742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bfd2ee55b42ca74bb6d5bdd15f51e89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 665595552}
+  obj: {fileID: 1148301135}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   referencePointPosition: rightHandPosition
@@ -3849,7 +3853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bfd2ee55b42ca74bb6d5bdd15f51e89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  obj: {fileID: 665595552}
+  obj: {fileID: 1148301135}
   newPosition: {x: 0, y: 0, z: 0}
   newRotation: {x: 0, y: 0, z: 0, w: 0}
   referencePointPosition: leftHandPosition

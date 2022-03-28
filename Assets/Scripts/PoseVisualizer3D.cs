@@ -28,12 +28,10 @@ public class PoseVisualizer3D : MonoBehaviour
         new Vector4(24, 26), new Vector4(26, 28), new Vector4(28, 30), new Vector4(30, 32), new Vector4(32, 28)
     };
 
-    public Vector3 headPosition = Vector3.zero;
-    public Vector3 leftHandPosition = Vector3.zero;
-    public Vector3 rightHandPosition = Vector3.zero;
+    private Vector3 headPosition = Vector3.zero;
+    private Vector3 leftHandPosition = Vector3.zero;
+    private Vector3 rightHandPosition = Vector3.zero;
     public Vector3[] bpPose = new Vector3[3];
-    public Vector3 centroidPointPosition = Vector3.zero;
-    public Quaternion centroidPointRotation;
 
 
     void Start(){
@@ -71,17 +69,6 @@ public class PoseVisualizer3D : MonoBehaviour
         leftHandPosition = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
         rightHandPosition = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
 
-        Vector3[] points = {headPosition, leftHandPosition, rightHandPosition};
-        centroidPointPosition = calculateCentroid(points);
-        
-        // Calculate vector "hands", the line between hands
-        Vector3 hands = leftHandPosition - rightHandPosition;
-        // Calculate vector "forehead", the line between the head and head projection on the "hands" vector
-        Vector3 forehead = Vector3.Project((headPosition - rightHandPosition), (leftHandPosition - rightHandPosition)) + rightHandPosition - headPosition;
-        // Calculate rotation
-        centroidPointRotation = Quaternion.LookRotation(hands, forehead);
-        
-
         headPosition = MirrorVector(headPosition);
         leftHandPosition = MirrorVector(leftHandPosition);
         rightHandPosition = MirrorVector(rightHandPosition);
@@ -89,7 +76,6 @@ public class PoseVisualizer3D : MonoBehaviour
         bpPose[0] = headPosition;
         bpPose[1] = leftHandPosition;
         bpPose[2] = rightHandPosition;
-        
     } 
 
     void OnRenderObject(){

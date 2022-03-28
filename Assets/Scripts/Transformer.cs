@@ -7,26 +7,26 @@ public class Transformer : MonoBehaviour
     public GameObject obj;
     public Vector3 newPosition = Vector3.zero;
     public Quaternion newRotation;
-    private PoseVisualizer3D poseVisualizer;
+    private AlignPose alignPose;
     public string referencePointPosition;
     public string referencePointRotation;
 
     void Start()
     {
-        poseVisualizer = obj.GetComponent<PoseVisualizer3D>();
+        alignPose = obj.GetComponent<AlignPose>();
     }
 
     void Update()
     {
         if (referencePointPosition.Length != 0)
         {
-            newPosition = (Vector3)poseVisualizer.GetType().GetField(referencePointPosition)?.GetValue(poseVisualizer);
+            newPosition = (Vector3)alignPose.GetType().GetField(referencePointPosition)?.GetValue(alignPose);
             gameObject.transform.position = newPosition;
         }
 
         if (referencePointRotation.Length != 0)
         {
-            newRotation = (Quaternion)poseVisualizer.GetType().GetField(referencePointRotation)?.GetValue(poseVisualizer);
+            newRotation = (Quaternion)alignPose.GetType().GetField(referencePointRotation)?.GetValue(alignPose);
             gameObject.transform.rotation = newRotation;
         }
     }
