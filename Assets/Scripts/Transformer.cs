@@ -21,13 +21,13 @@ public class Transformer : MonoBehaviour
         if (referencePointPosition.Length != 0)
         {
             newPosition = (Vector3)alignPose.GetType().GetField(referencePointPosition)?.GetValue(alignPose);
-            gameObject.transform.position = newPosition;
+            gameObject.transform.localPosition = newPosition;
         }
 
         if (referencePointRotation.Length != 0)
         {
             newRotation = (Quaternion)alignPose.GetType().GetField(referencePointRotation)?.GetValue(alignPose);
-            gameObject.transform.rotation = newRotation;
+            gameObject.transform.localRotation = newRotation;
         }
     }
 }

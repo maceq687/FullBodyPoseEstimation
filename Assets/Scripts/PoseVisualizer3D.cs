@@ -31,7 +31,7 @@ public class PoseVisualizer3D : MonoBehaviour
     private Vector3 headPosition = Vector3.zero;
     private Vector3 leftHandPosition = Vector3.zero;
     private Vector3 rightHandPosition = Vector3.zero;
-    public Vector3[] bpPose = new Vector3[3];
+    public Vector3[] bpPose = new Vector3[6];
 
 
     void Start(){
@@ -68,14 +68,21 @@ public class PoseVisualizer3D : MonoBehaviour
         headPosition = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
         leftHandPosition = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
         rightHandPosition = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
-
-        headPosition = MirrorVector(headPosition);
-        leftHandPosition = MirrorVector(leftHandPosition);
-        rightHandPosition = MirrorVector(rightHandPosition);
+        Vector3 leftHipPosition = new Vector3(detecter.GetPoseWorldLandmark(23).x, detecter.GetPoseWorldLandmark(23).y, detecter.GetPoseWorldLandmark(23).z);
+        Vector3 rightHipPosition = new Vector3(detecter.GetPoseWorldLandmark(23).x, detecter.GetPoseWorldLandmark(23).y, detecter.GetPoseWorldLandmark(23).z);
+        Vector3 hipsPosition = Vector3.Lerp(leftHipPosition, rightHipPosition, 0.5f);
+        Vector3 leftAnklePosition = new Vector3(detecter.GetPoseWorldLandmark(27).x, detecter.GetPoseWorldLandmark(27).y, detecter.GetPoseWorldLandmark(27).z);
+        Vector3 rightAnklePosition = new Vector3(detecter.GetPoseWorldLandmark(28).x, detecter.GetPoseWorldLandmark(28).y, detecter.GetPoseWorldLandmark(28).z);
 
         bpPose[0] = headPosition;
         bpPose[1] = leftHandPosition;
         bpPose[2] = rightHandPosition;
+        bpPose[3] = hipsPosition;
+        bpPose[4] = leftAnklePosition;
+        bpPose[5] = rightAnklePosition;
+
+        for(int i = 0; i < bpPose.Length; i++)
+            bpPose[i] = MirrorVector(bpPose[i]);
     } 
 
     void OnRenderObject(){
@@ -105,17 +112,5 @@ public class PoseVisualizer3D : MonoBehaviour
         Vector3 mirror = new Vector3(-1, 1, -1);
         Vector3 output = Vector3.Scale(input, mirror);
         return output;
-    }
-
-    private Vector3 calculateCentroid(Vector3[] centerPoints){
-        Vector3 centroid = Vector3.zero;
-        int numPoints = centerPoints.Length;
-        foreach (Vector3 point in centerPoints){
-            centroid += point;
-        }
-        
-        centroid /= numPoints;
-        
-        return centroid;
     }
 }

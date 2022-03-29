@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using System;
 
 public class AlignPose : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class AlignPose : MonoBehaviour
     public Vector3 headPosition = Vector3.zero;
     public Vector3 leftHandPosition = Vector3.zero;
     public Vector3 rightHandPosition = Vector3.zero;
+    public Vector3 hipsPosition = Vector3.zero;
+    public Vector3 leftAnklePosition = Vector3.zero;
+    public Vector3 rightAnklePosition = Vector3.zero;
     public Vector3 vrRigCentroidPointPosition = Vector3.zero;
     public Quaternion vrRigCentroidPointRotation;
     public Vector3 poseCentroidPointPosition = Vector3.zero;
@@ -33,21 +37,19 @@ public class AlignPose : MonoBehaviour
     void Update()
     {
         if (hmdDevice.isValid)
-		{
 			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
-		}
         if (leftController.isValid)
-		{
 			leftController.TryGetFeatureValue(CommonUsages.devicePosition, out leftControllerPosition);
-		}
         if (rightController.isValid)
-		{
 			rightController.TryGetFeatureValue(CommonUsages.devicePosition, out rightControllerPosition);
-		}
 
         headPosition = poseVisualizer.bpPose[0];
         leftHandPosition = poseVisualizer.bpPose[1];
         rightHandPosition = poseVisualizer.bpPose[2];
+        hipsPosition = poseVisualizer.bpPose[3];
+        leftAnklePosition = poseVisualizer.bpPose[4];
+        rightAnklePosition = poseVisualizer.bpPose[5];
+
         
         Vector3[] vrRigPoints = {hmdPosition, leftControllerPosition, rightControllerPosition};
         vrRigCentroidPointPosition = CalculateCentroidPointPosition(vrRigPoints);
@@ -56,11 +58,14 @@ public class AlignPose : MonoBehaviour
         poseCentroidPointPosition = CalculateCentroidPointPosition(poseVisualizer.bpPose);
         poseCentroidPointRotation = CalculateCentroidPointRotation(poseVisualizer.bpPose);
 
-        gameObject.transform.position = vrRigCentroidPointPosition;
-        gameObject.transform.rotation = vrRigCentroidPointRotation;
+        // WIP
+        gameObject.transform.position = new Vector3(0, 1.2f, 0) - headPosition;
+        // gameObject.transform.position = vrRigCentroidPointPosition;
+        // gameObject.transform.rotation = vrRigCentroidPointRotation;
     }
 
     private Vector3 CalculateCentroidPointPosition(Vector3[] centerPoints){
+        Array.Resize(ref centerPoints, 3);
         Vector3 centroid = Vector3.zero;
         int numPoints = centerPoints.Length;
         foreach (Vector3 point in centerPoints){
@@ -78,9 +83,7 @@ public class AlignPose : MonoBehaviour
         // Calculate rotation
         Quaternion centroidPointRotation = Quaternion.identity;
         if (hands != Vector3.zero && forehead != Vector3.zero)
-        {
             centroidPointRotation = Quaternion.LookRotation(hands, forehead);
-        }
         return centroidPointRotation;
     }
 }
