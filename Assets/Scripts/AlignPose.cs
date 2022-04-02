@@ -24,10 +24,12 @@ public class AlignPose : MonoBehaviour
     public Quaternion vrRigCentroidPointRotation;
     public Vector3 poseCentroidPointPosition = Vector3.zero;
     public Quaternion poseCentroidPointRotation;
+    private bool vrPresent = false;
     
     
     void Start()
     {
+        vrPresent = isPresent();
         hmdDevice = InputDevices.GetDeviceAtXRNode(XRNode.CenterEye);
         leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
         rightController = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
@@ -58,10 +60,30 @@ public class AlignPose : MonoBehaviour
         poseCentroidPointPosition = CalculateCentroidPointPosition(poseVisualizer.bpPose);
         poseCentroidPointRotation = CalculateCentroidPointRotation(poseVisualizer.bpPose);
 
-        // WIP
-        gameObject.transform.position = new Vector3(0, 1.2f, 0) - headPosition;
-        // gameObject.transform.position = vrRigCentroidPointPosition;
-        // gameObject.transform.rotation = vrRigCentroidPointRotation;
+        if(!vrPresent)
+        {
+            gameObject.transform.position = new Vector3(0, 1.2f, 0) - headPosition;
+        }
+        else
+        {
+            gameObject.transform.position = hmdPosition - headPosition;
+            // gameObject.transform.position = vrRigCentroidPointPosition - poseCentroidPointPosition;
+            // gameObject.transform.rotation = vrRigCentroidPointRotation - poseCentroidPointRotation;
+        }
+    }
+
+    private static bool isPresent()
+    {
+        var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
+        SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
+        foreach (var xrDisplay in xrDisplaySubsystems)
+        {
+            if (xrDisplay.running)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Vector3 CalculateCentroidPointPosition(Vector3[] centerPoints){

@@ -1461,7 +1461,7 @@ PrefabInstance:
     - target: {fileID: 3109853830224744688, guid: ca55254dbe1b5b946b07e1834ea5b997,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3109853830224744688, guid: ca55254dbe1b5b946b07e1834ea5b997,
         type: 3}
@@ -1501,7 +1501,7 @@ PrefabInstance:
     - target: {fileID: 3281408077930600810, guid: ca55254dbe1b5b946b07e1834ea5b997,
         type: 3}
       propertyPath: m_Name
-      value: CubeHead
+      value: HmdCube
       objectReference: {fileID: 0}
     - target: {fileID: 3281408077930600810, guid: ca55254dbe1b5b946b07e1834ea5b997,
         type: 3}
@@ -1534,7 +1534,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &873292666
 Transform:
   m_ObjectHideFlags: 0
@@ -2070,7 +2070,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1148301136
 Transform:
   m_ObjectHideFlags: 0
@@ -2935,17 +2935,17 @@ PrefabInstance:
     - target: {fileID: 1948329710155936262, guid: 38283d0f2f9588c4a90e9a27a86fdbdc,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.75
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1948329710155936262, guid: 38283d0f2f9588c4a90e9a27a86fdbdc,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.75
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1948329710155936262, guid: 38283d0f2f9588c4a90e9a27a86fdbdc,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.75
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1948329710155936262, guid: 38283d0f2f9588c4a90e9a27a86fdbdc,
         type: 3}
@@ -3630,20 +3630,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnSmoothness: 5
   head:
-    vrTarget: {fileID: 1845551846}
+    vrTarget: {fileID: 1905328728}
     rigTarget: {fileID: 1085803139}
-    trackingPositionOffset: {x: 0, y: 0, z: 0}
+    trackingPositionOffset: {x: 0, y: -0.07, z: -0.06}
     trackingRotationOffset: {x: 0, y: 0, z: 0}
   leftHand:
-    vrTarget: {fileID: 1937595163}
+    vrTarget: {fileID: 300027011}
     rigTarget: {fileID: 1275026885}
-    trackingPositionOffset: {x: 0, y: 0, z: 0}
-    trackingRotationOffset: {x: 0, y: 0, z: 0}
+    trackingPositionOffset: {x: -0.03, y: 0, z: -0.1}
+    trackingRotationOffset: {x: -180, y: -90, z: -45}
   rightHand:
-    vrTarget: {fileID: 1905905472}
+    vrTarget: {fileID: 1349399457}
     rigTarget: {fileID: 592863737}
-    trackingPositionOffset: {x: 0, y: 0, z: 0}
-    trackingRotationOffset: {x: 0, y: 0, z: 0}
+    trackingPositionOffset: {x: 0.03, y: 0, z: -0.1}
+    trackingRotationOffset: {x: 0, y: 90, z: -45}
   hips:
     vrTarget: {fileID: 434278708}
     rigTarget: {fileID: 1499336912}
@@ -3970,7 +3970,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1845551846
 Transform:
   m_ObjectHideFlags: 0
@@ -4201,7 +4201,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
+  near clip plane: 0.1
   far clip plane: 1000
   field of view: 60
   orthographic: 0
