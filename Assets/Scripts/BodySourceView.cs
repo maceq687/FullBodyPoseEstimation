@@ -7,6 +7,18 @@ public class BodySourceView : MonoBehaviour
 {
     public Material BoneMaterial;
     public GameObject BodySourceManager;
+    public Vector3 headPosition;
+    public Vector3 leftHandPosition;
+    public Vector3 rightHandPosition;
+    public Vector3 spineBasePosition;
+    public Vector3 leftAnklePosition;
+    public Vector3 rightAnklePosition;
+    public GameObject head;
+    public GameObject leftHand;
+    public GameObject rightHand;
+    public GameObject spineBase;
+    public GameObject leftAnkle;
+    public GameObject rightAnkle;
     
     private Dictionary<ulong, GameObject> _Bodies = new Dictionary<ulong, GameObject>();
     private BodySourceManager _BodyManager;
@@ -103,6 +115,13 @@ public class BodySourceView : MonoBehaviour
                 }
                 
                 RefreshBodyObject(body, _Bodies[body.TrackingId]);
+
+                head.transform.position = headPosition;
+                leftHand.transform.position = leftHandPosition;
+                rightHand.transform.position = rightHandPosition;
+                spineBase.transform.position = spineBasePosition;
+                leftAnkle.transform.position = leftAnklePosition;
+                rightAnkle.transform.position = rightAnklePosition;
             }
         }
     }
@@ -156,6 +175,36 @@ public class BodySourceView : MonoBehaviour
             {
                 lr.enabled = false;
             }
+
+            if (jt.ToString().Equals("Head"))
+            {
+                headPosition = GetVector3FromJoint(sourceJoint);
+            }
+            
+            if (jt.ToString().Equals("HandLeft"))
+            {
+                leftHandPosition = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("HandRight"))
+            {
+                rightHandPosition = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("SpineBase"))
+            {
+                spineBasePosition = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("AnkleLeft"))
+            {
+                leftAnklePosition = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("AnkleRight"))
+            {
+                rightAnklePosition = GetVector3FromJoint(sourceJoint);
+            }
         }
     }
     
@@ -177,5 +226,11 @@ public class BodySourceView : MonoBehaviour
     private static Vector3 GetVector3FromJoint(Kinect.Joint joint)
     {
         return new Vector3(joint.Position.X, joint.Position.Y + 1, (joint.Position.Z * -1) + 2);
+    }
+
+    public static Quaternion GetQuaternionJoint(Kinect.Body body, Kinect.JointType jointTd)
+    {
+        var orientation = body.JointOrientations[jointTd].Orientation;
+        return new Quaternion(orientation.X,orientation.Y,orientation.Z,orientation.W);
     }
 }
