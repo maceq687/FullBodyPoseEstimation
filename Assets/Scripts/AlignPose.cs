@@ -86,7 +86,8 @@ public class AlignPose : MonoBehaviour
         return false;
     }
 
-    private Vector3 CalculateCentroidPointPosition(Vector3[] centerPoints){
+    private Vector3 CalculateCentroidPointPosition(Vector3[] centerPoints)
+    {
         Array.Resize(ref centerPoints, 3);
         Vector3 centroid = Vector3.zero;
         int numPoints = centerPoints.Length;
@@ -97,7 +98,8 @@ public class AlignPose : MonoBehaviour
         return centroid;
     }
 
-    private Quaternion CalculateCentroidPointRotation(Vector3[] upperBodyPoints){
+    private Quaternion CalculateCentroidPointRotation(Vector3[] upperBodyPoints)
+    {
         // Calculate vector "hands", the line between hands
         Vector3 hands = upperBodyPoints[2] - upperBodyPoints[1];
         // Calculate vector "forehead", the line between the head and head's projection on the "hands" vector
