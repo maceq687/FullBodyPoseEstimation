@@ -5,3 +5,5 @@ Aim of the project is to achieve a full body controllable avatar in VR environme
 Those techniques include:  
 - Neural network based pose estimation using a webcam ([BlazePoseBarracuda](https://github.com/creativeIKEP/BlazePoseBarracuda))
 - Depth map based pose estimation using [Kinect v2](https://developer.microsoft.com/en-us/windows/kinect/)
+
+Full body rig solution created based on solution from [ThreeDPoseUnityBarracuda](https://github.com/digital-standard/ThreeDPoseUnityBarracuda) project.
