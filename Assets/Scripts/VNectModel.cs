@@ -246,15 +246,17 @@ public class VNectModel : MonoBehaviour
         var forward = TriangleNormal(jointPoints[PositionIndex.hips.Int()].Transform.position, jointPoints[PositionIndex.lHip.Int()].Transform.position, jointPoints[PositionIndex.rHip.Int()].Transform.position);
         foreach (var jointPoint in jointPoints)
         {
-            if (jointPoint.Transform != null)
+            if (jointPoint != null)
             {
-                jointPoint.InitRotation = jointPoint.Transform.rotation;
-            }
-
-            if (jointPoint.Child != null)
-            {
-                jointPoint.Inverse = GetInverse(jointPoint, jointPoint.Child, forward);
-                jointPoint.InverseRotation = jointPoint.Inverse * jointPoint.InitRotation;
+                if (jointPoint.Transform != null)
+                {
+                    jointPoint.InitRotation = jointPoint.Transform.rotation;
+                }
+                if (jointPoint.Child != null && jointPoint.Child.Transform != null && jointPoint.Child.Transform.position != null)
+                {
+                    jointPoint.Inverse = GetInverse(jointPoint, jointPoint.Child, forward);
+                    jointPoint.InverseRotation = jointPoint.Inverse * jointPoint.InitRotation;
+                }  
             }
         }
         
