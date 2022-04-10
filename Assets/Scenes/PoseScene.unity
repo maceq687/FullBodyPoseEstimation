@@ -2983,7 +2983,6 @@ MonoBehaviour:
   SkeletonScale: 1
   ModelObject: {fileID: 1468032511}
   Nose: {fileID: 735118674}
-  ZScale: 0
 --- !u!4 &1468032514 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: ee116a9c76d3a0e48bd97c1e76ed6bd3,

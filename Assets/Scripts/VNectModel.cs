@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 
 /// <summary>
 /// Position index of joint point
@@ -110,18 +111,27 @@ public class VNectModel : MonoBehaviour
     public GameObject Nose;
     private Animator anim;
 
-    // Move in z direction
-    private float centerTall = 224 * 0.75f;
-    private float tall = 224 * 0.75f;
-    private float prevTall = 224 * 0.75f;
-    public float ZScale = 0.8f;
+    // HMD
+    private InputDevice hmdDevice;
+    private bool vrRunning = false;
+    private Vector3 hmdPosition;
+
+    private void Start()
+    {
+        vrRunning = isVrRunning();
+        hmdDevice = InputDevices.GetDeviceAtXRNode(XRNode.CenterEye);
+    }
 
     private void Update()
     {
+        if (hmdDevice.isValid)
+			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
+        
         if (jointPoints != null)
         {
             PoseUpdate();
         }
+        // transform.localPosition = transform.position - Nose.transform.position + hmdPosition;
     }
 
     /// <summary>
@@ -295,33 +305,12 @@ public class VNectModel : MonoBehaviour
 
     public void PoseUpdate()
     {       
-        // caliculate movement range of z-coordinate from height
-        var t1 = Vector3.Distance(jointPoints[PositionIndex.head.Int()].Pos3D, jointPoints[PositionIndex.neck.Int()].Pos3D);
-        var t2 = Vector3.Distance(jointPoints[PositionIndex.neck.Int()].Pos3D, jointPoints[PositionIndex.spine.Int()].Pos3D);
-        var pm = (jointPoints[PositionIndex.rHip.Int()].Pos3D + jointPoints[PositionIndex.lHip.Int()].Pos3D) / 2f;
-        var t3 = Vector3.Distance(jointPoints[PositionIndex.spine.Int()].Pos3D, pm);
-        var t4r = Vector3.Distance(jointPoints[PositionIndex.rHip.Int()].Pos3D, jointPoints[PositionIndex.rKnee.Int()].Pos3D);
-        var t4l = Vector3.Distance(jointPoints[PositionIndex.lHip.Int()].Pos3D, jointPoints[PositionIndex.lKnee.Int()].Pos3D);
-        var t4 = (t4r + t4l) / 2f;
-        var t5r = Vector3.Distance(jointPoints[PositionIndex.rKnee.Int()].Pos3D, jointPoints[PositionIndex.rAnkle.Int()].Pos3D);
-        var t5l = Vector3.Distance(jointPoints[PositionIndex.lKnee.Int()].Pos3D, jointPoints[PositionIndex.lAnkle.Int()].Pos3D);
-        var t5 = (t5r + t5l) / 2f;
-        var t = t1 + t2 + t3 + t4 + t5;
-
-
-        // Low pass filter in z direction
-        tall = t * 0.7f + prevTall * 0.3f;
-        prevTall = tall;
-
-        if (tall == 0)
-        {
-            tall = centerTall;
-        }
-        var dz = (centerTall - tall) / centerTall * ZScale;
-
         // movement and rotatation of center
         var forward = TriangleNormal(jointPoints[PositionIndex.hips.Int()].Pos3D, jointPoints[PositionIndex.lHip.Int()].Pos3D, jointPoints[PositionIndex.rHip.Int()].Pos3D);
-        jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f + new Vector3(initPosition.x, initPosition.y, initPosition.z + dz);
+        if(!vrRunning)
+            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f + new Vector3(initPosition.x, initPosition.y, initPosition.z);
+        else
+            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f - jointPoints[PositionIndex.Nose.Int()].Pos3D + hmdPosition;
         jointPoints[PositionIndex.hips.Int()].Transform.rotation = Quaternion.LookRotation(forward) * jointPoints[PositionIndex.hips.Int()].InverseRotation;
 
         // rotate each of bones
@@ -404,5 +393,19 @@ public class VNectModel : MonoBehaviour
         sk.Line.material = SkeletonMaterial;
 
         Skeletons.Add(sk);
+    }
+
+    private static bool isVrRunning()
+    {
+        var xrDisplaySubsystems = new List<XRDisplaySubsystem>();
+        SubsystemManager.GetInstances<XRDisplaySubsystem>(xrDisplaySubsystems);
+        foreach (var xrDisplay in xrDisplaySubsystems)
+        {
+            if (xrDisplay.running)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
