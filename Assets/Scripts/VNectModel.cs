@@ -122,6 +122,9 @@ public class VNectModel : MonoBehaviour
     private Vector3 hmdPosition;
     private Vector3 leftControllerPosition;
     private Vector3 rightControllerPosition;
+    private Quaternion hmdRotation;
+    private Quaternion leftControllerRotation;
+    private Quaternion rightControllerRotation;
 
     public PoseVisualizer3D PoseVisualizer3D;
 
@@ -130,12 +133,26 @@ public class VNectModel : MonoBehaviour
     {
         if (hmdDevice.isValid)
 			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
+            hmdDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out hmdRotation);
         if (leftController.isValid)
-			leftController.TryGetFeatureValue(CommonUsages.devicePosition, out leftControllerPosition);
-        jointPoints[PositionIndex.lController.Int()].Pos3D = leftControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
+        {
+            leftController.TryGetFeatureValue(CommonUsages.devicePosition, out leftControllerPosition);
+            leftController.TryGetFeatureValue(CommonUsages.deviceRotation, out leftControllerRotation);
+        }
         if (rightController.isValid)
+        {
 			rightController.TryGetFeatureValue(CommonUsages.devicePosition, out rightControllerPosition);
-        jointPoints[PositionIndex.rController.Int()].Pos3D = rightControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
+            rightController.TryGetFeatureValue(CommonUsages.deviceRotation, out rightControllerRotation);
+        }
+
+        if(vrRunning)
+        {
+            jointPoints[PositionIndex.head.Int()].Transform.rotation = hmdRotation;
+            jointPoints[PositionIndex.lController.Int()].Pos3D = leftControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
+            jointPoints[PositionIndex.lController.Int()].Transform.rotation = leftControllerRotation * Quaternion.Euler(new Vector3(-180f, -90f, -45f));
+            jointPoints[PositionIndex.rController.Int()].Pos3D = rightControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
+            jointPoints[PositionIndex.rController.Int()].Transform.rotation = rightControllerRotation * Quaternion.Euler(new Vector3(0f, 90f, -45f));
+        }
 
         // X button (Quest2) on left controller triggers calibration
         bool triggerValue;
@@ -248,7 +265,6 @@ public class VNectModel : MonoBehaviour
         jointPoints[PositionIndex.spine.Int()].Child = jointPoints[PositionIndex.chest.Int()];
         jointPoints[PositionIndex.chest.Int()].Child = jointPoints[PositionIndex.neck.Int()];
         jointPoints[PositionIndex.neck.Int()].Child = jointPoints[PositionIndex.head.Int()];
-        // jointPoints[PositionIndex.head.Int()].Child = jointPoints[PositionIndex.Nose.Int()];
 
         useSkeleton = ShowSkeleton;
         if (useSkeleton)
@@ -326,15 +342,15 @@ public class VNectModel : MonoBehaviour
         hips.Inverse = Quaternion.Inverse(Quaternion.LookRotation(forward));
         hips.InverseRotation = hips.Inverse * hips.InitRotation;
 
-        // Head Rotation
-        var head = jointPoints[PositionIndex.head.Int()];
-        head.InitRotation = jointPoints[PositionIndex.head.Int()].Transform.rotation;
-        var gaze = jointPoints[PositionIndex.Nose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
-        head.Inverse = Quaternion.Inverse(Quaternion.LookRotation(gaze));
-        head.InverseRotation = head.Inverse * head.InitRotation;
-        
         if(!vrRunning)
         {
+            // Head Rotation
+            var head = jointPoints[PositionIndex.head.Int()];
+            head.InitRotation = jointPoints[PositionIndex.head.Int()].Transform.rotation;
+            var gaze = jointPoints[PositionIndex.Nose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
+            head.Inverse = Quaternion.Inverse(Quaternion.LookRotation(gaze));
+            head.InverseRotation = head.Inverse * head.InitRotation;
+
             // Wrists rotation
             var lWrist = jointPoints[PositionIndex.lWrist.Int()];
             var lf = TriangleNormal(lWrist.Pos3D, jointPoints[PositionIndex.lPinky.Int()].Pos3D, jointPoints[PositionIndex.lThumb.Int()].Pos3D);
@@ -360,7 +376,7 @@ public class VNectModel : MonoBehaviour
 
     public void PoseUpdate()
     {       
-        // movement and rotatation of center
+        // movement and rotatation of the center
         var forward = TriangleNormal(jointPoints[PositionIndex.hips.Int()].Pos3D, jointPoints[PositionIndex.lHip.Int()].Pos3D, jointPoints[PositionIndex.rHip.Int()].Pos3D);
         if(!vrRunning)
             jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f + initPosition - jointPositionOffset;
@@ -368,7 +384,7 @@ public class VNectModel : MonoBehaviour
             jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f - jointPoints[PositionIndex.Nose.Int()].Pos3D + hmdPosition - jointPositionOffset;
         jointPoints[PositionIndex.hips.Int()].Transform.rotation = Quaternion.LookRotation(forward) * jointPoints[PositionIndex.hips.Int()].InverseRotation;
 
-        // rotate each of bones
+        // rotation of each of the bones
         foreach (var jointPoint in jointPoints)
         {
             if (jointPoint.Parent != null)
