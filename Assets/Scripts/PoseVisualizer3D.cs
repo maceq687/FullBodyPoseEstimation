@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mediapipe.BlazePose;
+using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PoseVisualizer3D : MonoBehaviour
 {
@@ -35,6 +37,8 @@ public class PoseVisualizer3D : MonoBehaviour
     /// Coordinates of joint points
     /// </summary>
     private VNectModel.JointPoint[] jointPoints;
+    private bool vrRunning = false;
+    private Vector3 scaling = Vector3.one;
     
     public Vector3[] bpPose = new Vector3[6];
 
@@ -43,6 +47,7 @@ public class PoseVisualizer3D : MonoBehaviour
         material = new Material(shader);
         detecter = new BlazePoseDetecter();
         jointPoints = VNectModel.Initialize();
+        vrRunning = VNectModel.vrRunning;
     }
 
     void Update()
@@ -69,13 +74,16 @@ public class PoseVisualizer3D : MonoBehaviour
             // Debug.LogFormat("{0}: {1}", i, detecter.GetPoseWorldLandmark(i));
             if (detecter.GetPoseWorldLandmark(i).w > humanExistThreshold)
             {
-                jointPoints[i].Pos3D.x = -1 * detecter.GetPoseWorldLandmark(i).x;
-                jointPoints[i].Pos3D.y = detecter.GetPoseWorldLandmark(i).y;
-                jointPoints[i].Pos3D.z = -1 * detecter.GetPoseWorldLandmark(i).z;
+                jointPoints[i].Pos3D.x = -1f * detecter.GetPoseWorldLandmark(i).x * scaling.x;
+                jointPoints[i].Pos3D.y = detecter.GetPoseWorldLandmark(i).y * scaling.y;
+                jointPoints[i].Pos3D.z = -1f * detecter.GetPoseWorldLandmark(i).z * scaling.z;
                 jointPoints[i].score3D = detecter.GetPoseWorldLandmark(i).w;
             }
         }
         // Debug.Log("---");
+
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            RunCalibration();
         
         // Calculate head position
         Vector3 earCenter = Vector3.Lerp(jointPoints[PositionIndex.rEar.Int()].Pos3D, jointPoints[PositionIndex.lEar.Int()].Pos3D, 0.5f);
@@ -98,7 +106,7 @@ public class PoseVisualizer3D : MonoBehaviour
         // Calculate spine position
         jointPoints[PositionIndex.spine.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.28f);
 
-        // Calculate chest positon
+        // Calculate chest position
         jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.7f);
 
         Vector3 headPosition = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
@@ -144,6 +152,51 @@ public class PoseVisualizer3D : MonoBehaviour
     {
         // Must call Dispose method when no longer in use.
         detecter.Dispose();
+    }
+
+    public void RunCalibration()
+    {
+        if (!vrRunning)
+        {
+            Debug.Log("BlazePose calibration will begin in 6 seconds, please stand in T-pose!");
+            StartCoroutine(PoseCalibrationRoutine(poseTDimensionsCalculated => {
+                VNectModel.ScaleAvatar(poseTDimensionsCalculated);
+                Debug.Log("BlazePose calibration done!");
+            }));
+        }
+        else
+        {
+            Debug.Log("VR calibration will begin in 5 seconds, please stand in T-pose!");
+            Vector3 vrTDimensions = Vector3.zero;
+            StartCoroutine(VNectModel.VrCalibrationRoutine(vrTDimensionsCalculated => {
+                vrTDimensions = vrTDimensionsCalculated;
+            }));
+            StartCoroutine(PoseCalibrationRoutine(poseTDimensionsCalculated => {
+                ScalePose(vrTDimensions, poseTDimensionsCalculated);
+                Debug.Log("VR calibration done!");
+            }));
+        }
+    }
+
+    private IEnumerator PoseCalibrationRoutine(System.Action<Vector3> callback = null)
+    {
+        yield return new WaitForSeconds(6);
+        Vector3 poseTDimensions = Vector3.zero;
+        poseTDimensions.x = Vector3.Distance(detecter.GetPoseWorldLandmark(15), detecter.GetPoseWorldLandmark(16));
+        float floor = Mathf.Min(detecter.GetPoseWorldLandmark(29).y, detecter.GetPoseWorldLandmark(30).y);
+        poseTDimensions.y = detecter.GetPoseWorldLandmark(0).y - floor;
+        callback (poseTDimensions);
+    }
+
+    /// <summary>
+    /// Scale BlazePose based on the physical dimensions of the user's body measured using HMD and controllers
+    /// </summary>
+    private void ScalePose(Vector3 vrTDimensions, Vector3 poseTDimensions)
+    {
+        scaling.x = vrTDimensions.x / poseTDimensions.x;
+        scaling.y = vrTDimensions.y / poseTDimensions.y;
+        scaling.z = (scaling.x + scaling.y) / 2f;
+        Debug.Log("BlazePose scaling done");
     }
 
     private Vector3 MirrorVector(Vector3 input)

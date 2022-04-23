@@ -279,7 +279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &205803257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2983,6 +2983,7 @@ MonoBehaviour:
   SkeletonScale: 1
   ModelObject: {fileID: 1468032511}
   Nose: {fileID: 735118674}
+  vrRunning: 0
 --- !u!4 &1468032514 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: ee116a9c76d3a0e48bd97c1e76ed6bd3,

@@ -87,14 +87,12 @@ public class VNectModel : MonoBehaviour
     {
         public GameObject LineObject;
         public LineRenderer Line;
-
         public JointPoint start = null;
         public JointPoint end = null;
     }
 
     private List<Skeleton> Skeletons = new List<Skeleton>();
     public Material SkeletonMaterial;
-
     public bool ShowSkeleton;
     private bool useSkeleton;
     public float SkeletonX;
@@ -105,22 +103,27 @@ public class VNectModel : MonoBehaviour
     // Joint position and bone
     private JointPoint[] jointPoints;
     public JointPoint[] JointPoints { get { return jointPoints; } }
-
     private Vector3 initPosition; // Initial center position
+    private Vector3 jointPositionOffset = Vector3.zero;
 
     // Avatar
     public GameObject ModelObject;
     public GameObject Nose;
     private Animator anim;
+    private Vector3 avatarDimensions;
+    private Vector3 avatarCenter;
 
     // HMD
     private InputDevice hmdDevice;
     private InputDevice leftController;
     private InputDevice rightController;
-    private bool vrRunning = false;
+    [HideInInspector]
+    public bool vrRunning = false;
     private Vector3 hmdPosition;
     private Vector3 leftControllerPosition;
     private Vector3 rightControllerPosition;
+
+    public PoseVisualizer3D PoseVisualizer3D;
 
 
     private void Update()
@@ -129,15 +132,18 @@ public class VNectModel : MonoBehaviour
 			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
         if (leftController.isValid)
 			leftController.TryGetFeatureValue(CommonUsages.devicePosition, out leftControllerPosition);
-        jointPoints[PositionIndex.lController.Int()].Pos3D = leftControllerPosition * 0.8f - jointPoints[PositionIndex.Nose.Int()].Pos3D;
+        jointPoints[PositionIndex.lController.Int()].Pos3D = leftControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
         if (rightController.isValid)
 			rightController.TryGetFeatureValue(CommonUsages.devicePosition, out rightControllerPosition);
-        jointPoints[PositionIndex.rController.Int()].Pos3D = rightControllerPosition * 0.8f - jointPoints[PositionIndex.Nose.Int()].Pos3D;
+        jointPoints[PositionIndex.rController.Int()].Pos3D = rightControllerPosition - hmdPosition + jointPoints[PositionIndex.Nose.Int()].Pos3D;
+
+        // X button (Quest2) on left controller triggers calibration
+        bool triggerValue;
+        if (leftController.TryGetFeatureValue(CommonUsages.primaryButton, out triggerValue) && triggerValue)
+            PoseVisualizer3D.RunCalibration();
         
         if (jointPoints != null)
-        {
             PoseUpdate();
-        }
     }
 
     /// <summary>
@@ -156,6 +162,10 @@ public class VNectModel : MonoBehaviour
             jointPoints[i] = new JointPoint();
 
         anim = ModelObject.GetComponent<Animator>();
+
+        avatarDimensions.x = Vector3.Distance(anim.GetBoneTransform(HumanBodyBones.RightHand).position, anim.GetBoneTransform(HumanBodyBones.LeftHand).position);
+        avatarDimensions.y = Nose.transform.position.y;
+        avatarCenter = GetCenter(gameObject);
 
         // Right Arm
         jointPoints[PositionIndex.rShoulder.Int()].Transform = anim.GetBoneTransform(HumanBodyBones.RightUpperArm);
@@ -353,9 +363,9 @@ public class VNectModel : MonoBehaviour
         // movement and rotatation of center
         var forward = TriangleNormal(jointPoints[PositionIndex.hips.Int()].Pos3D, jointPoints[PositionIndex.lHip.Int()].Pos3D, jointPoints[PositionIndex.rHip.Int()].Pos3D);
         if(!vrRunning)
-            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f + new Vector3(initPosition.x, initPosition.y, initPosition.z);
+            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f + initPosition - jointPositionOffset;
         else
-            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f - jointPoints[PositionIndex.Nose.Int()].Pos3D + hmdPosition;
+            jointPoints[PositionIndex.hips.Int()].Transform.position = jointPoints[PositionIndex.hips.Int()].Pos3D * 0.005f - jointPoints[PositionIndex.Nose.Int()].Pos3D + hmdPosition - jointPositionOffset;
         jointPoints[PositionIndex.hips.Int()].Transform.rotation = Quaternion.LookRotation(forward) * jointPoints[PositionIndex.hips.Int()].InverseRotation;
 
         // rotate each of bones
@@ -453,5 +463,42 @@ public class VNectModel : MonoBehaviour
             }
         }
         return false;
+    }
+
+    private Vector3 GetCenter(GameObject obj)
+    {
+        Vector3 sumVector = Vector3.zero;
+
+        foreach (Transform child in obj.transform)
+        {          
+            sumVector += child.position;        
+        }
+
+        Vector3 groupCenter = sumVector / obj.transform.childCount;
+        return sumVector;
+    }
+
+    public IEnumerator VrCalibrationRoutine(System.Action<Vector3> callback = null)
+    {
+        yield return new WaitForSeconds(5);
+        Vector3 vrTDimensions = Vector3.zero;
+        vrTDimensions.x = Vector3.Distance(leftControllerPosition, rightControllerPosition);
+        vrTDimensions.y = hmdPosition.y;
+        ScaleAvatar(vrTDimensions);
+        callback (vrTDimensions);
+    }
+
+    /// <summary>
+    /// Scale the avatar based on the physical dimensions of the user's body
+    /// </summary>
+    public void ScaleAvatar(Vector3 poseTDimensions)
+    {
+        Vector3 scaling;
+        scaling.x = poseTDimensions.x / avatarDimensions.x;
+        scaling.y = poseTDimensions.y / avatarDimensions.y;
+        scaling.z = (scaling.x + scaling.y) / 2f;
+        transform.localScale = scaling;
+        jointPositionOffset.y = avatarCenter.y - avatarCenter.y * scaling.y;
+        Debug.Log("Avatar scaling done");
     }
 }
