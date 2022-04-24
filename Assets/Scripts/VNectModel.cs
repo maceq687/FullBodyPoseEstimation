@@ -404,11 +404,7 @@ public class VNectModel : MonoBehaviour
             rWrist.InverseRotation = rWrist.Inverse * rWrist.InitRotation;
         }
 
-        jointPoints[PositionIndex.hips.Int()].score3D = 1f;
-        jointPoints[PositionIndex.neck.Int()].score3D = 1f;
         jointPoints[PositionIndex.Nose.Int()].score3D = 1f;
-        jointPoints[PositionIndex.head.Int()].score3D = 1f;
-        jointPoints[PositionIndex.spine.Int()].score3D = 1f;
 
         return JointPoints;
     }

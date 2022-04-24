@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Mediapipe.BlazePose;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Linq;
 
 public class PoseVisualizer3D : MonoBehaviour
 {
@@ -94,20 +95,36 @@ public class PoseVisualizer3D : MonoBehaviour
         Vector3 normalizedEarCenterHead = Vector3.Normalize(earCenterHead);
         earCenterHead = normalizedEarCenterHead * 0.1f;
         jointPoints[PositionIndex.head.Int()].Pos3D = earCenter + earCenterHead;
+        // Calculate head score
+        float[] headScores3D = { jointPoints[PositionIndex.rEar.Int()].score3D, jointPoints[PositionIndex.lEar.Int()].score3D,
+        jointPoints[PositionIndex.rEye.Int()].score3D, jointPoints[PositionIndex.lEye.Int()].score3D };
+        jointPoints[PositionIndex.head.Int()].score3D = headScores3D.Min();
+
 
         // Calculate neck position
         Vector3 shoulderCenter = Vector3.Lerp(jointPoints[PositionIndex.rShoulder.Int()].Pos3D, jointPoints[PositionIndex.lShoulder.Int()].Pos3D, 0.5f);
         jointPoints[PositionIndex.neck.Int()].Pos3D = Vector3.Lerp(shoulderCenter, jointPoints[PositionIndex.head.Int()].Pos3D, 0.3f);
+        // Calculate neck score
+        float[] neckScores3D = { jointPoints[PositionIndex.rShoulder.Int()].score3D, jointPoints[PositionIndex.lShoulder.Int()].score3D, jointPoints[PositionIndex.head.Int()].score3D };
+        jointPoints[PositionIndex.neck.Int()].score3D = neckScores3D.Min();
 
         // Calculate hips position
         Vector3 hipCenter = Vector3.Lerp(jointPoints[PositionIndex.rHip.Int()].Pos3D, jointPoints[PositionIndex.lHip.Int()].Pos3D, 0.5f);
         jointPoints[PositionIndex.hips.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.125f);
+        // Calculate hips score
+        float[] hipsScores3D = { jointPoints[PositionIndex.rShoulder.Int()].score3D, jointPoints[PositionIndex.lShoulder.Int()].score3D,
+        jointPoints[PositionIndex.rHip.Int()].score3D, jointPoints[PositionIndex.lHip.Int()].score3D};
+        jointPoints[PositionIndex.hips.Int()].score3D = hipsScores3D.Min();
 
         // Calculate spine position
         jointPoints[PositionIndex.spine.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.28f);
+        // Calculate spine score
+        jointPoints[PositionIndex.spine.Int()].score3D = hipsScores3D.Min();
 
         // Calculate chest position
         jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.7f);
+        // Calculate chest score
+        jointPoints[PositionIndex.chest.Int()].score3D = hipsScores3D.Min();
 
         Vector3 headPosition = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
         Vector3 leftHandPosition = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
