@@ -16,7 +16,7 @@ Those techniques include:
 
 ### Prerequisites
 
-When running the application you should orient your body so that it will be facing the camera preview screen. In order for the pose estimation algorithm to work correctly the camera need to see your entire body at all times.  
+When running the application you should orient your body so that it will be facing the camera preview screen. In order for the pose estimation algorithm to work correctly your entire body must be present within the camera's field of view at all times.  
 Make sure that there is only one person present within the camera's field of view.  
 When working with VR it is crucial that you align your VR 'front' with the position of the physical camera (**PoseScene** - your webcam, **KinectScene** - Kinect)  
 
