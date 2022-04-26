@@ -7,21 +7,23 @@ public class BodySourceView : MonoBehaviour
 {
     public Material BoneMaterial;
     public GameObject BodySourceManager;
-    public Vector3 headPosition;
-    public Vector3 leftHandPosition;
-    public Vector3 rightHandPosition;
-    public Vector3 spineBasePosition;
-    public Vector3 leftAnklePosition;
-    public Vector3 rightAnklePosition;
-    public GameObject head;
-    public GameObject leftHand;
-    public GameObject rightHand;
-    public GameObject spineBase;
-    public GameObject leftAnkle;
-    public GameObject rightAnkle;
-    
+    public GameObject FaceManager;
+    public VNectModel VNectModel;
+
+    /// <summary>
+    /// Coordinates of joint points
+    /// </summary>
+    private VNectModel.JointPoint[] jointPoints;
+    private Vector3 spineBase;
+    private Vector3 spineMid;
+    private Vector3 spineShoulder;
+    private Vector3 handLeft;
+    private Vector3 handRight;
+    private Vector3 handTipLeft;
+    private Vector3 handTipRight;
     private Dictionary<ulong, GameObject> _Bodies = new Dictionary<ulong, GameObject>();
     private BodySourceManager _BodyManager;
+    private FaceManager _FaceManager;
     
     private Dictionary<Kinect.JointType, Kinect.JointType> _BoneMap = new Dictionary<Kinect.JointType, Kinect.JointType>()
     {
@@ -55,15 +57,31 @@ public class BodySourceView : MonoBehaviour
         { Kinect.JointType.Neck, Kinect.JointType.Head },
     };
     
+    void Start()
+    {
+        jointPoints = VNectModel.Initialize();
+    }
+    
     void Update () 
     {
         if (BodySourceManager == null)
         {
             return;
         }
+
+        if (FaceManager == null)
+        {
+            return;
+        }
         
         _BodyManager = BodySourceManager.GetComponent<BodySourceManager>();
         if (_BodyManager == null)
+        {
+            return;
+        }
+
+        _FaceManager = FaceManager.GetComponent<FaceManager>();
+        if (_FaceManager == null)
         {
             return;
         }
@@ -116,14 +134,26 @@ public class BodySourceView : MonoBehaviour
                 
                 RefreshBodyObject(body, _Bodies[body.TrackingId]);
 
-                head.transform.position = headPosition;
-                leftHand.transform.position = leftHandPosition;
-                rightHand.transform.position = rightHandPosition;
-                spineBase.transform.position = spineBasePosition;
-                leftAnkle.transform.position = leftAnklePosition;
-                rightAnkle.transform.position = rightAnklePosition;
+                // Calculations of the missing joints
+                jointPoints[PositionIndex.neck.Int()].Pos3D = Vector3.Lerp(spineShoulder, jointPoints[PositionIndex.neck.Int()].Pos3D, 0.5f);
+                jointPoints[PositionIndex.hips.Int()].Pos3D = Vector3.Lerp(spineBase, spineMid, 0.25f);
+                jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(spineMid, spineShoulder, 0.5f);
+                jointPoints[PositionIndex.spine.Int()].Pos3D = Vector3.Lerp(jointPoints[PositionIndex.hips.Int()].Pos3D, spineMid, 0.5f);
+                Vector3 lMiddleProximal = Vector3.Lerp(handLeft, handTipLeft, 0.5f);
+                Vector3 lThumbMiddleProximal = lMiddleProximal - jointPoints[PositionIndex.lThumb.Int()].Pos3D;
+                jointPoints[PositionIndex.lPinky.Int()].Pos3D = jointPoints[PositionIndex.lThumb.Int()].Pos3D + 1.5f * lThumbMiddleProximal;
+                Vector3 rMiddleProximal = Vector3.Lerp(handRight, handTipRight, 0.5f);
+                Vector3 rThumbMiddleProximal = rMiddleProximal - jointPoints[PositionIndex.rThumb.Int()].Pos3D;
+                jointPoints[PositionIndex.rPinky.Int()].Pos3D = jointPoints[PositionIndex.rThumb.Int()].Pos3D + 1.5f * rThumbMiddleProximal;
             }
         }
+
+        // Face points
+        jointPoints[PositionIndex.Nose.Int()].Pos3D = _FaceManager.GetFacePointsPosition(0);
+        jointPoints[PositionIndex.lEye.Int()].Pos3D = _FaceManager.GetFacePointsPosition(1);
+        jointPoints[PositionIndex.rEye.Int()].Pos3D = _FaceManager.GetFacePointsPosition(2);
+        jointPoints[PositionIndex.lEar.Int()].Pos3D = _FaceManager.GetFacePointsPosition(3);
+        jointPoints[PositionIndex.rEar.Int()].Pos3D = _FaceManager.GetFacePointsPosition(4);
     }
     
     private GameObject CreateBodyObject(ulong id)
@@ -163,6 +193,7 @@ public class BodySourceView : MonoBehaviour
             Transform jointObj = bodyObject.transform.Find(jt.ToString());
             jointObj.localPosition = GetVector3FromJoint(sourceJoint);
             
+            // Skeleton visualizer
             LineRenderer lr = jointObj.GetComponent<LineRenderer>();
             if(targetJoint.HasValue)
             {
@@ -175,35 +206,126 @@ public class BodySourceView : MonoBehaviour
             {
                 lr.enabled = false;
             }
-
-            if (jt.ToString().Equals("Head"))
-            {
-                headPosition = GetVector3FromJoint(sourceJoint);
-            }
             
+            // Mapping of Kinect joints to VNectModel joints
+            if (jt.ToString().Equals("SpineBase"))
+            {
+                spineBase = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("SpineMid"))
+            {
+                spineMid = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("Neck"))
+            {
+                jointPoints[PositionIndex.head.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("ShoulderLeft"))
+            {
+                jointPoints[PositionIndex.lShoulder.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("ElbowLeft"))
+            {
+                jointPoints[PositionIndex.lElbow.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("WristLeft"))
+            {
+                jointPoints[PositionIndex.lWrist.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
             if (jt.ToString().Equals("HandLeft"))
             {
-                leftHandPosition = GetVector3FromJoint(sourceJoint);
+                handLeft = GetVector3FromJoint(sourceJoint);
+            }
+            
+            if (jt.ToString().Equals("ShoulderRight"))
+            {
+                jointPoints[PositionIndex.rShoulder.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("ElbowRight"))
+            {
+                jointPoints[PositionIndex.rElbow.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("WristRight"))
+            {
+                jointPoints[PositionIndex.rWrist.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
             }
 
             if (jt.ToString().Equals("HandRight"))
             {
-                rightHandPosition = GetVector3FromJoint(sourceJoint);
+                handRight = GetVector3FromJoint(sourceJoint);
             }
 
-            if (jt.ToString().Equals("SpineBase"))
+            if (jt.ToString().Equals("HipLeft"))
             {
-                spineBasePosition = GetVector3FromJoint(sourceJoint);
+                jointPoints[PositionIndex.lHip.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("KneeLeft"))
+            {
+                jointPoints[PositionIndex.lKnee.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
             }
 
             if (jt.ToString().Equals("AnkleLeft"))
             {
-                leftAnklePosition = GetVector3FromJoint(sourceJoint);
+                jointPoints[PositionIndex.lAnkle.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("FootLeft"))
+            {
+                jointPoints[PositionIndex.lFootIndex.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("HipRight"))
+            {
+                jointPoints[PositionIndex.rHip.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("KneeRight"))
+            {
+                jointPoints[PositionIndex.rKnee.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
             }
 
             if (jt.ToString().Equals("AnkleRight"))
             {
-                rightAnklePosition = GetVector3FromJoint(sourceJoint);
+                jointPoints[PositionIndex.rAnkle.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("FootRight"))
+            {
+                jointPoints[PositionIndex.rFootIndex.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("SpineShoulder"))
+            {
+                spineShoulder = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("HandTipLeft"))
+            {
+                handTipLeft = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("ThumbLeft"))
+            {
+                jointPoints[PositionIndex.lThumb.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("HandTipRight"))
+            {
+                handTipRight = GetVector3FromJoint(sourceJoint);
+            }
+
+            if (jt.ToString().Equals("ThumbRight"))
+            {
+                jointPoints[PositionIndex.rThumb.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
             }
         }
     }
@@ -225,12 +347,6 @@ public class BodySourceView : MonoBehaviour
     
     private static Vector3 GetVector3FromJoint(Kinect.Joint joint)
     {
-        return new Vector3(joint.Position.X, joint.Position.Y + 1, (joint.Position.Z * -1) + 2);
-    }
-
-    public static Quaternion GetQuaternionJoint(Kinect.Body body, Kinect.JointType jointTd)
-    {
-        var orientation = body.JointOrientations[jointTd].Orientation;
-        return new Quaternion(orientation.X,orientation.Y,orientation.Z,orientation.W);
+        return new Vector3(joint.Position.X, joint.Position.Y, (joint.Position.Z * -1f) + 2f);
     }
 }

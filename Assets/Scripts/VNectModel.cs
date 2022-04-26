@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Position index of joint point
@@ -128,10 +129,29 @@ public class VNectModel : MonoBehaviour
     private Quaternion rightControllerRotation;
 
     public PoseVisualizer3D PoseVisualizer3D;
+    private string sceneName;
+    private bool kinectScene = false;
+    public GameObject FaceManager;
+    private FaceManager _FaceManager;
 
+
+    void Awake()
+    {
+        sceneName = SceneManager.GetActiveScene().name;
+        
+        if (sceneName == "KinectScene")
+            kinectScene = true;
+    }
 
     private void Update()
     {
+        if (kinectScene)
+        {
+            // Head rotation
+            _FaceManager = FaceManager.GetComponent<FaceManager>();
+		    jointPoints[PositionIndex.head.Int()].Transform.rotation = _FaceManager.GetFaceRotation();
+        }
+        
         if (hmdDevice.isValid)
 			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
             hmdDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out hmdRotation);
@@ -381,7 +401,7 @@ public class VNectModel : MonoBehaviour
         hips.Inverse = Quaternion.Inverse(Quaternion.LookRotation(forward));
         hips.InverseRotation = hips.Inverse * hips.InitRotation;
 
-        if(!vrRunning)
+        if(!vrRunning || kinectScene)
         {
             // Head Rotation
             var head = jointPoints[PositionIndex.head.Int()];
@@ -389,7 +409,10 @@ public class VNectModel : MonoBehaviour
             var gaze = jointPoints[PositionIndex.Nose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
             head.Inverse = Quaternion.Inverse(Quaternion.LookRotation(gaze));
             head.InverseRotation = head.Inverse * head.InitRotation;
+        }
 
+        if(!vrRunning)
+        {    
             // Wrists rotation
             var lWrist = jointPoints[PositionIndex.lWrist.Int()];
             var lf = TriangleNormal(lWrist.Pos3D, jointPoints[PositionIndex.lPinky.Int()].Pos3D, jointPoints[PositionIndex.lThumb.Int()].Pos3D);
@@ -403,8 +426,6 @@ public class VNectModel : MonoBehaviour
             rWrist.Inverse = Quaternion.Inverse(Quaternion.LookRotation(jointPoints[PositionIndex.rThumb.Int()].Transform.position - jointPoints[PositionIndex.rPinky.Int()].Transform.position, rf));
             rWrist.InverseRotation = rWrist.Inverse * rWrist.InitRotation;
         }
-
-        jointPoints[PositionIndex.Nose.Int()].score3D = 1f;
 
         return JointPoints;
     }
@@ -433,14 +454,17 @@ public class VNectModel : MonoBehaviour
             }
         }
 
-        if(!vrRunning)
+        if(!vrRunning || kinectScene)
         {
             // Head Rotation
             var gaze = jointPoints[PositionIndex.Nose.Int()].Pos3D - jointPoints[PositionIndex.head.Int()].Pos3D;
             var f = TriangleNormal(jointPoints[PositionIndex.Nose.Int()].Pos3D, jointPoints[PositionIndex.rEar.Int()].Pos3D, jointPoints[PositionIndex.lEar.Int()].Pos3D);
             var head = jointPoints[PositionIndex.head.Int()];
             head.Transform.rotation = Quaternion.LookRotation(gaze, f) * head.InverseRotation;
+        }
 
+        if(!vrRunning)
+        {
             // Wrist rotation
             var lWrist = jointPoints[PositionIndex.lWrist.Int()];
             var lf = TriangleNormal(lWrist.Pos3D, jointPoints[PositionIndex.lPinky.Int()].Pos3D, jointPoints[PositionIndex.lThumb.Int()].Pos3D);
