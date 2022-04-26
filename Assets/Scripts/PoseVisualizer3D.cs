@@ -39,7 +39,6 @@ public class PoseVisualizer3D : MonoBehaviour
     private VNectModel.JointPoint[] jointPoints;
     private Vector3 scaling = Vector3.one;
 
-    public Vector3[] bpPose = new Vector3[6];
 
     void Start()
     {
@@ -119,25 +118,6 @@ public class PoseVisualizer3D : MonoBehaviour
         jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(hipCenter, shoulderCenter, 0.7f);
         // Calculate chest score
         jointPoints[PositionIndex.chest.Int()].score3D = hipsScores3D.Min();
-
-        Vector3 headPosition = new Vector3(detecter.GetPoseWorldLandmark(0).x, detecter.GetPoseWorldLandmark(0).y, detecter.GetPoseWorldLandmark(0).z);
-        Vector3 leftHandPosition = new Vector3(detecter.GetPoseWorldLandmark(15).x, detecter.GetPoseWorldLandmark(15).y, detecter.GetPoseWorldLandmark(15).z);
-        Vector3 rightHandPosition = new Vector3(detecter.GetPoseWorldLandmark(16).x, detecter.GetPoseWorldLandmark(16).y, detecter.GetPoseWorldLandmark(16).z);
-        Vector3 leftHipPosition = new Vector3(detecter.GetPoseWorldLandmark(23).x, detecter.GetPoseWorldLandmark(23).y, detecter.GetPoseWorldLandmark(23).z);
-        Vector3 rightHipPosition = new Vector3(detecter.GetPoseWorldLandmark(24).x, detecter.GetPoseWorldLandmark(24).y, detecter.GetPoseWorldLandmark(24).z);
-        Vector3 hipsPosition = Vector3.Lerp(leftHipPosition, rightHipPosition, 0.5f);
-        Vector3 leftAnklePosition = new Vector3(detecter.GetPoseWorldLandmark(27).x, detecter.GetPoseWorldLandmark(27).y, detecter.GetPoseWorldLandmark(27).z);
-        Vector3 rightAnklePosition = new Vector3(detecter.GetPoseWorldLandmark(28).x, detecter.GetPoseWorldLandmark(28).y, detecter.GetPoseWorldLandmark(28).z);
-
-        bpPose[0] = headPosition;
-        bpPose[1] = leftHandPosition;
-        bpPose[2] = rightHandPosition;
-        bpPose[3] = hipsPosition;
-        bpPose[4] = leftAnklePosition;
-        bpPose[5] = rightAnklePosition;
-
-        for(int i = 0; i < bpPose.Length; i++)
-            bpPose[i] = MirrorVector(bpPose[i]);
     } 
 
     void OnRenderObject()
@@ -185,12 +165,5 @@ public class PoseVisualizer3D : MonoBehaviour
         scaling.y = vrTDimensions.y / poseTDimensions.y;
         scaling.z = (scaling.x + scaling.y) / 2f;
         Debug.Log("BlazePose scaling done");
-    }
-
-    private Vector3 MirrorVector(Vector3 input)
-    {
-        Vector3 mirror = new Vector3(-1, 1, -1);
-        Vector3 output = Vector3.Scale(input, mirror);
-        return output;
     }
 }
