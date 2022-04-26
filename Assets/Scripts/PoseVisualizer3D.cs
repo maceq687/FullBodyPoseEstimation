@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mediapipe.BlazePose;
-using UnityEngine.InputSystem;
 using System.Collections;
 using System.Linq;
 
@@ -38,9 +37,8 @@ public class PoseVisualizer3D : MonoBehaviour
     /// Coordinates of joint points
     /// </summary>
     private VNectModel.JointPoint[] jointPoints;
-    private bool vrRunning = false;
     private Vector3 scaling = Vector3.one;
-    
+
     public Vector3[] bpPose = new Vector3[6];
 
     void Start()
@@ -48,7 +46,6 @@ public class PoseVisualizer3D : MonoBehaviour
         material = new Material(shader);
         detecter = new BlazePoseDetecter();
         jointPoints = VNectModel.Initialize();
-        vrRunning = VNectModel.vrRunning;
     }
 
     void Update()
@@ -82,9 +79,6 @@ public class PoseVisualizer3D : MonoBehaviour
             }
         }
         // Debug.Log("---");
-
-        if (Keyboard.current.spaceKey.wasPressedThisFrame)
-            RunCalibration();
         
         // Calculate head position
         Vector3 earCenter = Vector3.Lerp(jointPoints[PositionIndex.rEar.Int()].Pos3D, jointPoints[PositionIndex.lEar.Int()].Pos3D, 0.5f);
@@ -171,33 +165,10 @@ public class PoseVisualizer3D : MonoBehaviour
         detecter.Dispose();
     }
 
-    public void RunCalibration()
+    public IEnumerator PoseCalibrationRoutine(bool delay, System.Action<Vector3> callback = null)
     {
-        if (!vrRunning)
-        {
-            Debug.Log("BlazePose calibration will begin in 6 seconds, please stand in T-pose!");
-            StartCoroutine(PoseCalibrationRoutine(poseTDimensionsCalculated => {
-                VNectModel.ScaleAvatar(poseTDimensionsCalculated);
-                Debug.Log("BlazePose calibration done!");
-            }));
-        }
-        else
-        {
-            Debug.Log("VR calibration will begin in 5 seconds, please stand in T-pose!");
-            Vector3 vrTDimensions = Vector3.zero;
-            StartCoroutine(VNectModel.VrCalibrationRoutine(vrTDimensionsCalculated => {
-                vrTDimensions = vrTDimensionsCalculated;
-            }));
-            StartCoroutine(PoseCalibrationRoutine(poseTDimensionsCalculated => {
-                ScalePose(vrTDimensions, poseTDimensionsCalculated);
-                Debug.Log("VR calibration done!");
-            }));
-        }
-    }
-
-    private IEnumerator PoseCalibrationRoutine(System.Action<Vector3> callback = null)
-    {
-        yield return new WaitForSeconds(6);
+        if (delay)
+            yield return new WaitForSeconds(5);
         Vector3 poseTDimensions = Vector3.zero;
         poseTDimensions.x = Vector3.Distance(detecter.GetPoseWorldLandmark(15), detecter.GetPoseWorldLandmark(16));
         float floor = Mathf.Min(detecter.GetPoseWorldLandmark(29).y, detecter.GetPoseWorldLandmark(30).y);
@@ -208,7 +179,7 @@ public class PoseVisualizer3D : MonoBehaviour
     /// <summary>
     /// Scale BlazePose based on the physical dimensions of the user's body measured using HMD and controllers
     /// </summary>
-    private void ScalePose(Vector3 vrTDimensions, Vector3 poseTDimensions)
+    public void ScalePose(Vector3 vrTDimensions, Vector3 poseTDimensions)
     {
         scaling.x = vrTDimensions.x / poseTDimensions.x;
         scaling.y = vrTDimensions.y / poseTDimensions.y;

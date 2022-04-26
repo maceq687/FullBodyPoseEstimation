@@ -189,10 +189,10 @@ public class VNectModel : MonoBehaviour
             jointPoints[PositionIndex.rPhantomElbow.Int()].Pos3D = rPhantomElbowProjection + rElbowProjectionElbow;
         }
 
-        // X button (Quest2) on left controller triggers calibration
+        // Primary button on left controller triggers calibration
         bool triggerValue;
-        if (leftController.TryGetFeatureValue(CommonUsages.primaryButton, out triggerValue) && triggerValue)
-            PoseVisualizer3D.RunCalibration();
+        if (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame || (leftController.TryGetFeatureValue(CommonUsages.primaryButton, out triggerValue) && triggerValue))
+            RunCalibration();
         
         if (jointPoints != null)
             PoseUpdate();
@@ -553,7 +553,30 @@ public class VNectModel : MonoBehaviour
         return sumVector;
     }
 
-    public IEnumerator VrCalibrationRoutine(System.Action<Vector3> callback = null)
+    private void RunCalibration()
+    {
+        if (!vrRunning)
+        {
+            Debug.Log("Avatar calibration will begin in 5 seconds, please stand in T-pose!");
+            StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(true, poseTDimensionsCalculated => {
+                ScaleAvatar(poseTDimensionsCalculated);
+                Debug.Log("Avatar calibration done!");
+            }));
+        }
+        else
+        {
+            Debug.Log("VR calibration will begin in 5 seconds, please stand in T-pose!");
+            StartCoroutine(VrCalibrationRoutine(vrTDimensionsCalculated => {
+                Vector3 vrTDimensions = vrTDimensionsCalculated;
+                StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(false, poseTDimensionsCalculated => {
+                    PoseVisualizer3D.ScalePose(vrTDimensions, poseTDimensionsCalculated);
+                    Debug.Log("VR calibration done!");
+                }));
+            }));
+        }
+    }
+
+    private IEnumerator VrCalibrationRoutine(System.Action<Vector3> callback = null)
     {
         yield return new WaitForSeconds(5);
         Vector3 vrTDimensions = Vector3.zero;
@@ -566,7 +589,7 @@ public class VNectModel : MonoBehaviour
     /// <summary>
     /// Scale the avatar based on the physical dimensions of the user's body
     /// </summary>
-    public void ScaleAvatar(Vector3 poseTDimensions)
+    private void ScaleAvatar(Vector3 poseTDimensions)
     {
         Vector3 scaling;
         scaling.x = poseTDimensions.x / avatarDimensions.x;
