@@ -149,12 +149,14 @@ public class VNectModel : MonoBehaviour
     {
         if (kinectScene)
         {
-            // Head rotation
             if (!vrRunning)
-		        jointPoints[PositionIndex.head.Int()].Transform.rotation = FaceManager.GetFaceRotation();
+            {
+		        // Head rotation
+                jointPoints[PositionIndex.head.Int()].Transform.rotation = FaceManager.GetFaceRotation();
+            }
             else
             {
-                // Head position
+                // Phantom nose position
                 jointPoints[PositionIndex.phantomNose.Int()].Pos3D = new Vector3(jointPoints[PositionIndex.centerHead.Int()].Pos3D.x, jointPoints[PositionIndex.centerHead.Int()].Pos3D.y, jointPoints[PositionIndex.centerHead.Int()].Pos3D.z + 0.1f);
             }
         }
@@ -268,7 +270,9 @@ public class VNectModel : MonoBehaviour
         }
 
         // Head
-        if (!kinectScene)
+        if (kinectScene && vrRunning)
+            jointPoints[PositionIndex.phantomNose.Int()].Transform = Nose.transform;        
+        else
         {
             jointPoints[PositionIndex.lEar.Int()].Transform = anim.GetBoneTransform(HumanBodyBones.Head);
             jointPoints[PositionIndex.lEye.Int()].Transform = anim.GetBoneTransform(HumanBodyBones.LeftEye);
@@ -276,8 +280,6 @@ public class VNectModel : MonoBehaviour
             jointPoints[PositionIndex.rEye.Int()].Transform = anim.GetBoneTransform(HumanBodyBones.RightEye);
             jointPoints[PositionIndex.Nose.Int()].Transform = Nose.transform;
         }
-        else
-            jointPoints[PositionIndex.phantomNose.Int()].Transform = Nose.transform;
 
         // Right Leg
         jointPoints[PositionIndex.rHip.Int()].Transform = anim.GetBoneTransform(HumanBodyBones.RightUpperLeg);
@@ -375,15 +377,15 @@ public class VNectModel : MonoBehaviour
             }
 
             // Head
-            if (!kinectScene)
+            if (kinectScene && vrRunning)
+                AddSkeleton(PositionIndex.centerHead, PositionIndex.phantomNose);
+            else
             {
                 AddSkeleton(PositionIndex.lEar, PositionIndex.lEye);
                 AddSkeleton(PositionIndex.lEye, PositionIndex.Nose);
                 AddSkeleton(PositionIndex.rEar, PositionIndex.rEye);
                 AddSkeleton(PositionIndex.rEye, PositionIndex.Nose);
             }
-            else
-                AddSkeleton(PositionIndex.centerHead, PositionIndex.phantomNose);
 
             // Right Leg
             AddSkeleton(PositionIndex.rHip, PositionIndex.rKnee);
@@ -429,22 +431,18 @@ public class VNectModel : MonoBehaviour
         hips.Inverse = Quaternion.Inverse(Quaternion.LookRotation(forward));
         hips.InverseRotation = hips.Inverse * hips.InitRotation;
 
-        if(!vrRunning || (kinectScene && !vrRunning))
+        // Head Rotation
+        var head = jointPoints[PositionIndex.head.Int()];
+        head.InitRotation = jointPoints[PositionIndex.head.Int()].Transform.rotation;
+        if(kinectScene && vrRunning)
         {
-            // Head Rotation
-            var head = jointPoints[PositionIndex.head.Int()];
-            head.InitRotation = jointPoints[PositionIndex.head.Int()].Transform.rotation;
-            var gaze = jointPoints[PositionIndex.Nose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
+            var gaze = jointPoints[PositionIndex.phantomNose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
             head.Inverse = Quaternion.Inverse(Quaternion.LookRotation(gaze));
             head.InverseRotation = head.Inverse * head.InitRotation;
         }
-
-        if(kinectScene && vrRunning)
+        else
         {
-            // Head Rotation
-            var head = jointPoints[PositionIndex.head.Int()];
-            head.InitRotation = jointPoints[PositionIndex.head.Int()].Transform.rotation;
-            var gaze = jointPoints[PositionIndex.phantomNose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
+            var gaze = jointPoints[PositionIndex.Nose.Int()].Transform.position - jointPoints[PositionIndex.head.Int()].Transform.position;
             head.Inverse = Quaternion.Inverse(Quaternion.LookRotation(gaze));
             head.InverseRotation = head.Inverse * head.InitRotation;
         }
@@ -497,7 +495,7 @@ public class VNectModel : MonoBehaviour
             }
         }
 
-        if(!vrRunning || (kinectScene && !vrRunning))
+        if(!vrRunning && !kinectScene)
         {
             // Head Rotation
             var gaze = jointPoints[PositionIndex.Nose.Int()].Pos3D - jointPoints[PositionIndex.head.Int()].Pos3D;

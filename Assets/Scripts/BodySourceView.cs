@@ -14,7 +14,6 @@ public class BodySourceView : MonoBehaviour
     /// Coordinates of joint points
     /// </summary>
     private VNectModel.JointPoint[] jointPoints;
-    private Vector3 spineBase;
     private Vector3 spineMid;
     private Vector3 footLeft;
     private Vector3 footRight;
@@ -141,9 +140,10 @@ public class BodySourceView : MonoBehaviour
                 jointPoints[PositionIndex.lFootIndex.Int()].Pos3D = footLeft;
                 jointPoints[PositionIndex.rFootIndex.Int()].Pos3D = footRight;
                 jointPoints[PositionIndex.neck.Int()].Pos3D = Vector3.Lerp(spineShoulder, jointPoints[PositionIndex.neck.Int()].Pos3D, 0.5f);
-                jointPoints[PositionIndex.hips.Int()].Pos3D = Vector3.Lerp(spineBase, spineMid, 0.25f);
-                jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(spineMid, spineShoulder, 0.5f);
-                jointPoints[PositionIndex.spine.Int()].Pos3D = Vector3.Lerp(jointPoints[PositionIndex.hips.Int()].Pos3D, spineMid, 0.5f);
+                Vector3 hipCenter = Vector3.Lerp(jointPoints[PositionIndex.rHip.Int()].Pos3D, jointPoints[PositionIndex.lHip.Int()].Pos3D, 0.5f);
+                jointPoints[PositionIndex.hips.Int()].Pos3D = Vector3.Lerp(hipCenter, spineMid, 0.25f);
+                jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(spineMid, spineShoulder, 0.2f);
+                jointPoints[PositionIndex.spine.Int()].Pos3D = Vector3.Lerp(jointPoints[PositionIndex.hips.Int()].Pos3D, spineMid, 0.3f);
                 Vector3 lMiddleProximal = Vector3.Lerp(handLeft, handTipLeft, 0.5f);
                 Vector3 lThumbMiddleProximal = lMiddleProximal - jointPoints[PositionIndex.lThumb.Int()].Pos3D;
                 jointPoints[PositionIndex.lPinky.Int()].Pos3D = jointPoints[PositionIndex.lThumb.Int()].Pos3D + 1.5f * lThumbMiddleProximal;
@@ -213,11 +213,6 @@ public class BodySourceView : MonoBehaviour
             }
             
             // Mapping of Kinect joints to VNectModel joints
-            if (jt.ToString().Equals("SpineBase"))
-            {
-                spineBase = GetVector3FromJoint(sourceJoint);
-            }
-
             if (jt.ToString().Equals("SpineMid"))
             {
                 spineMid = GetVector3FromJoint(sourceJoint);
