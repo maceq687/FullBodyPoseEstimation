@@ -228,6 +228,11 @@ public class BodySourceView : MonoBehaviour
                 jointPoints[PositionIndex.head.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
             }
 
+            if (jt.ToString().Equals("Head"))
+            {
+                jointPoints[PositionIndex.centerHead.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+            }
+
             if (jt.ToString().Equals("ShoulderLeft"))
             {
                 jointPoints[PositionIndex.lShoulder.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
