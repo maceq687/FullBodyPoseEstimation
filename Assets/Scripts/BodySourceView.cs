@@ -16,6 +16,8 @@ public class BodySourceView : MonoBehaviour
     private VNectModel.JointPoint[] jointPoints;
     private Vector3 spineBase;
     private Vector3 spineMid;
+    private Vector3 footLeft;
+    private Vector3 footRight;
     private Vector3 spineShoulder;
     private Vector3 handLeft;
     private Vector3 handRight;
@@ -24,6 +26,7 @@ public class BodySourceView : MonoBehaviour
     private Dictionary<ulong, GameObject> _Bodies = new Dictionary<ulong, GameObject>();
     private BodySourceManager _BodyManager;
     private FaceManager _FaceManager;
+    private Vector3 scaling = Vector3.one;
     
     private Dictionary<Kinect.JointType, Kinect.JointType> _BoneMap = new Dictionary<Kinect.JointType, Kinect.JointType>()
     {
@@ -135,6 +138,8 @@ public class BodySourceView : MonoBehaviour
                 RefreshBodyObject(body, _Bodies[body.TrackingId]);
 
                 // Calculations of the missing joints
+                jointPoints[PositionIndex.lFootIndex.Int()].Pos3D = footLeft;
+                jointPoints[PositionIndex.rFootIndex.Int()].Pos3D = footRight;
                 jointPoints[PositionIndex.neck.Int()].Pos3D = Vector3.Lerp(spineShoulder, jointPoints[PositionIndex.neck.Int()].Pos3D, 0.5f);
                 jointPoints[PositionIndex.hips.Int()].Pos3D = Vector3.Lerp(spineBase, spineMid, 0.25f);
                 jointPoints[PositionIndex.chest.Int()].Pos3D = Vector3.Lerp(spineMid, spineShoulder, 0.5f);
@@ -280,7 +285,7 @@ public class BodySourceView : MonoBehaviour
 
             if (jt.ToString().Equals("FootLeft"))
             {
-                jointPoints[PositionIndex.lFootIndex.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+                footLeft = GetVector3FromJoint(sourceJoint);
             }
 
             if (jt.ToString().Equals("HipRight"))
@@ -300,7 +305,7 @@ public class BodySourceView : MonoBehaviour
 
             if (jt.ToString().Equals("FootRight"))
             {
-                jointPoints[PositionIndex.rFootIndex.Int()].Pos3D = GetVector3FromJoint(sourceJoint);
+                footRight = GetVector3FromJoint(sourceJoint);
             }
 
             if (jt.ToString().Equals("SpineShoulder"))
@@ -345,8 +350,30 @@ public class BodySourceView : MonoBehaviour
         }
     }
     
-    private static Vector3 GetVector3FromJoint(Kinect.Joint joint)
+    private Vector3 GetVector3FromJoint(Kinect.Joint joint)
     {
-        return new Vector3(joint.Position.X, joint.Position.Y, (joint.Position.Z * -1f) + 2f);
+        return Vector3.Scale(new Vector3(joint.Position.X, joint.Position.Y, (joint.Position.Z * -1f) + 2f), scaling);
+    }
+
+    public IEnumerator KinectCalibrationRoutine(bool delay, System.Action<Vector3> callback = null)
+    {
+        if (delay)
+            yield return new WaitForSeconds(5);
+        Vector3 kinectTDimensions = Vector3.zero;
+        kinectTDimensions.x = Vector3.Distance(handLeft, handRight);
+        float floor = Mathf.Min(footLeft.y, footRight.y);
+        kinectTDimensions.y = _FaceManager.GetFacePointsPosition(0).y - floor;
+        callback (kinectTDimensions);
+    }
+
+    /// <summary>
+    /// Scale Kinect based on the physical dimensions of the user's body measured using HMD and controllers
+    /// </summary>
+    public void ScaleKinect(Vector3 vrTDimensions, Vector3 kinectTDimensions)
+    {
+        scaling.x = vrTDimensions.x / kinectTDimensions.x;
+        scaling.y = vrTDimensions.y / kinectTDimensions.y;
+        scaling.z = (scaling.x + scaling.y) / 2f;
+        Debug.Log("Kinect scaling done");
     }
 }

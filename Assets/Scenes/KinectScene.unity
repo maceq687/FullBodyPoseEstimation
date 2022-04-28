@@ -1112,7 +1112,8 @@ MonoBehaviour:
   Nose: {fileID: 720515020}
   vrRunning: 0
   PoseVisualizer3D: {fileID: 0}
-  FaceManager: {fileID: 1474901658}
+  FaceManager: {fileID: 1474901659}
+  BodySourceView: {fileID: 696856338}
 --- !u!1 &1070761607
 GameObject:
   m_ObjectHideFlags: 0

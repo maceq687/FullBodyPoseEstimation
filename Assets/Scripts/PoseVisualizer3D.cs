@@ -151,7 +151,7 @@ public class PoseVisualizer3D : MonoBehaviour
             yield return new WaitForSeconds(5);
         Vector3 poseTDimensions = Vector3.zero;
         poseTDimensions.x = Vector3.Distance(detecter.GetPoseWorldLandmark(15), detecter.GetPoseWorldLandmark(16));
-        float floor = Mathf.Min(detecter.GetPoseWorldLandmark(29).y, detecter.GetPoseWorldLandmark(30).y);
+        float floor = Mathf.Min(detecter.GetPoseWorldLandmark(29).y, detecter.GetPoseWorldLandmark(30).y, detecter.GetPoseWorldLandmark(31).y, detecter.GetPoseWorldLandmark(32).y);
         poseTDimensions.y = detecter.GetPoseWorldLandmark(0).y - floor;
         callback (poseTDimensions);
     }

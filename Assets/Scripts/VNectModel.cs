@@ -128,11 +128,11 @@ public class VNectModel : MonoBehaviour
     private Quaternion leftControllerRotation;
     private Quaternion rightControllerRotation;
 
-    public PoseVisualizer3D PoseVisualizer3D;
     private string sceneName;
     private bool kinectScene = false;
-    public GameObject FaceManager;
-    private FaceManager _FaceManager;
+    public PoseVisualizer3D PoseVisualizer3D;
+    public FaceManager FaceManager;
+    public BodySourceView BodySourceView;
 
 
     void Awake()
@@ -148,13 +148,14 @@ public class VNectModel : MonoBehaviour
         if (kinectScene)
         {
             // Head rotation
-            _FaceManager = FaceManager.GetComponent<FaceManager>();
-		    jointPoints[PositionIndex.head.Int()].Transform.rotation = _FaceManager.GetFaceRotation();
+		    jointPoints[PositionIndex.head.Int()].Transform.rotation = FaceManager.GetFaceRotation();
         }
         
         if (hmdDevice.isValid)
-			hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
+        {
+            hmdDevice.TryGetFeatureValue(CommonUsages.devicePosition, out hmdPosition);
             hmdDevice.TryGetFeatureValue(CommonUsages.deviceRotation, out hmdRotation);
+        }
         if (leftController.isValid)
         {
             leftController.TryGetFeatureValue(CommonUsages.devicePosition, out leftControllerPosition);
@@ -558,20 +559,40 @@ public class VNectModel : MonoBehaviour
         if (!vrRunning)
         {
             Debug.Log("Avatar calibration will begin in 5 seconds, please stand in T-pose!");
-            StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(true, poseTDimensionsCalculated => {
-                ScaleAvatar(poseTDimensionsCalculated);
-                Debug.Log("Avatar calibration done!");
-            }));
+            if (kinectScene)
+            {
+                StartCoroutine(BodySourceView.KinectCalibrationRoutine(true, kinectTDimensionsCalculated => {
+                    ScaleAvatar(kinectTDimensionsCalculated);
+                    Debug.Log("Avatar calibration done!");
+                }));
+            }
+            else
+            {
+                StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(true, poseTDimensionsCalculated => {
+                    ScaleAvatar(poseTDimensionsCalculated);
+                    Debug.Log("Avatar calibration done!");
+                }));
+            }
         }
         else
         {
             Debug.Log("VR calibration will begin in 5 seconds, please stand in T-pose!");
             StartCoroutine(VrCalibrationRoutine(vrTDimensionsCalculated => {
                 Vector3 vrTDimensions = vrTDimensionsCalculated;
-                StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(false, poseTDimensionsCalculated => {
-                    PoseVisualizer3D.ScalePose(vrTDimensions, poseTDimensionsCalculated);
-                    Debug.Log("VR calibration done!");
-                }));
+                if (kinectScene)
+                {
+                    StartCoroutine(BodySourceView.KinectCalibrationRoutine(false, kinectTDimensionsCalculated => {
+                        BodySourceView.ScaleKinect(vrTDimensions, kinectTDimensionsCalculated);
+                        Debug.Log("VR calibration done!");
+                    }));
+                }
+                else
+                {
+                    StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(false, poseTDimensionsCalculated => {
+                        PoseVisualizer3D.ScalePose(vrTDimensions, poseTDimensionsCalculated);
+                        Debug.Log("VR calibration done!");
+                    }));
+                }
             }));
         }
     }
@@ -589,11 +610,11 @@ public class VNectModel : MonoBehaviour
     /// <summary>
     /// Scale the avatar based on the physical dimensions of the user's body
     /// </summary>
-    private void ScaleAvatar(Vector3 poseTDimensions)
+    private void ScaleAvatar(Vector3 bodyTDimensions)
     {
         Vector3 scaling;
-        scaling.x = poseTDimensions.x / avatarDimensions.x;
-        scaling.y = poseTDimensions.y / avatarDimensions.y;
+        scaling.x = bodyTDimensions.x / avatarDimensions.x;
+        scaling.y = bodyTDimensions.y / avatarDimensions.y;
         scaling.z = (scaling.x + scaling.y) / 2f;
         transform.localScale = scaling;
         jointPositionOffset.y = avatarCenter.y - avatarCenter.y * scaling.y;
