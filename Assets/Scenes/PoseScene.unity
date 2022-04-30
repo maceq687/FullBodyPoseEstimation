@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c6834361c88fb94f8042d67ab8d7701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  webCamName: 
+  webCamName: Kinect V2 Video Sensor
   webCamResolution: {x: 1920, y: 1080}
   staticInput: {fileID: 0}
   mirrorHorizontally: 0

@@ -2,7 +2,7 @@
 
 public class WebCamInput : MonoBehaviour
 {
-    [SerializeField] string webCamName;
+    [SerializeField, WebCamName] string webCamName;
     [SerializeField] Vector2 webCamResolution = new Vector2(1920, 1080);
     [SerializeField] Texture staticInput;
     public bool mirrorHorizontally = false;
@@ -20,6 +20,9 @@ public class WebCamInput : MonoBehaviour
 
     void Start()
     {
+        if (webCamName == "Kinect V2 Video Sensor")
+            mirrorHorizontally = true;
+
         if(staticInput == null){
             webCamTexture = new WebCamTexture(webCamName, (int)webCamResolution.x, (int)webCamResolution.y);
             webCamTexture.Play();
