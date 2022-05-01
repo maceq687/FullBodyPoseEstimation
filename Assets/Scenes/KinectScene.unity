@@ -941,6 +941,7 @@ MonoBehaviour:
   BodySourceManager: {fileID: 371167730}
   FaceManager: {fileID: 1474901658}
   VNectModel: {fileID: 949741713}
+  showSkeleton: 1
 --- !u!4 &696856339
 Transform:
   m_ObjectHideFlags: 0

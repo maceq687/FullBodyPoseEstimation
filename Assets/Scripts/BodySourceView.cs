@@ -26,6 +26,7 @@ public class BodySourceView : MonoBehaviour
     private BodySourceManager _BodyManager;
     private FaceManager _FaceManager;
     private Vector3 scaling = Vector3.one;
+    public bool showSkeleton;
     
     private Dictionary<Kinect.JointType, Kinect.JointType> _BoneMap = new Dictionary<Kinect.JointType, Kinect.JointType>()
     {
@@ -165,19 +166,24 @@ public class BodySourceView : MonoBehaviour
     {
         GameObject body = new GameObject("Body:" + id);
         
-        for (Kinect.JointType jt = Kinect.JointType.SpineBase; jt <= Kinect.JointType.ThumbRight; jt++)
+        // Skeleton visualizer
+        if (showSkeleton)
         {
-            GameObject jointObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            for (Kinect.JointType jt = Kinect.JointType.SpineBase; jt <= Kinect.JointType.ThumbRight; jt++)
+            {
+                GameObject jointObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
-            LineRenderer lr = jointObj.AddComponent<LineRenderer>();
-            lr.positionCount = 2;
-            lr.material = BoneMaterial;
-            lr.startWidth = 0.05f;
-            lr.endWidth = 0.05f;
+                LineRenderer lr = jointObj.AddComponent<LineRenderer>();
+                lr.positionCount = 2;
+                lr.material = BoneMaterial;
+                lr.startWidth = 0.05f;
+                lr.endWidth = 0.05f;
+
+                jointObj.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                jointObj.name = jt.ToString();
+                jointObj.transform.parent = body.transform;
+            }
             
-            jointObj.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            jointObj.name = jt.ToString();
-            jointObj.transform.parent = body.transform;
         }
         
         return body;
@@ -190,27 +196,31 @@ public class BodySourceView : MonoBehaviour
             Kinect.Joint sourceJoint = body.Joints[jt];
             Kinect.Joint? targetJoint = null;
             
-            if(_BoneMap.ContainsKey(jt))
-            {
-                targetJoint = body.Joints[_BoneMap[jt]];
-            }
-            
-            Transform jointObj = bodyObject.transform.Find(jt.ToString());
-            jointObj.localPosition = GetVector3FromJoint(sourceJoint);
-            
             // Skeleton visualizer
-            LineRenderer lr = jointObj.GetComponent<LineRenderer>();
-            if(targetJoint.HasValue)
+            if (showSkeleton)
             {
-                lr.SetPosition(0, jointObj.localPosition);
-                lr.SetPosition(1, GetVector3FromJoint(targetJoint.Value));
-                lr.startColor = GetColorForState (sourceJoint.TrackingState);
-                lr.endColor = GetColorForState(targetJoint.Value.TrackingState);
+                if(_BoneMap.ContainsKey(jt))
+                {
+                    targetJoint = body.Joints[_BoneMap[jt]];
+                }
+                
+                Transform jointObj = bodyObject.transform.Find(jt.ToString());
+                jointObj.localPosition = GetVector3FromJoint(sourceJoint);
+                
+                LineRenderer lr = jointObj.GetComponent<LineRenderer>();
+                if(targetJoint.HasValue)
+                {
+                    lr.SetPosition(0, jointObj.localPosition);
+                    lr.SetPosition(1, GetVector3FromJoint(targetJoint.Value));
+                    lr.startColor = GetColorForState (sourceJoint.TrackingState);
+                    lr.endColor = GetColorForState(targetJoint.Value.TrackingState);
+                }
+                else
+                {
+                    lr.enabled = false;
+                }
             }
-            else
-            {
-                lr.enabled = false;
-            }
+            
             
             // Mapping of Kinect joints to VNectModel joints
             if (jt.ToString().Equals("SpineMid"))

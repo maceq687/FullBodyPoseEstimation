@@ -38,6 +38,7 @@ public class PoseVisualizer3D : MonoBehaviour
     /// </summary>
     private VNectModel.JointPoint[] jointPoints;
     private Vector3 scaling = Vector3.one;
+    public bool showSkeleton;
 
 
     void Start()
@@ -122,21 +123,24 @@ public class PoseVisualizer3D : MonoBehaviour
 
     void OnRenderObject()
     {
-        // Use predicted pose world landmark results on the ComputeBuffer (GPU) memory.
-        material.SetBuffer("_worldVertices", detecter.worldLandmarkBuffer);
-        // Set pose landmark counts.
-        material.SetInt("_keypointCount", detecter.vertexCount);
-        material.SetFloat("_humanExistThreshold", humanExistThreshold);
-        material.SetVectorArray("_linePair", linePair);
-        material.SetMatrix("_invViewMatrix", mainCamera.worldToCameraMatrix.inverse);
+        if(showSkeleton)
+        {
+            // Use predicted pose world landmark results on the ComputeBuffer (GPU) memory.
+            material.SetBuffer("_worldVertices", detecter.worldLandmarkBuffer);
+            // Set pose landmark counts.
+            material.SetInt("_keypointCount", detecter.vertexCount);
+            material.SetFloat("_humanExistThreshold", humanExistThreshold);
+            material.SetVectorArray("_linePair", linePair);
+            material.SetMatrix("_invViewMatrix", mainCamera.worldToCameraMatrix.inverse);
 
-        // Draw 35 world body topology lines.
-        material.SetPass(2);
-        Graphics.DrawProceduralNow(MeshTopology.Triangles, 6, BODY_LINE_NUM);
+            // Draw 35 world body topology lines.
+            material.SetPass(2);
+            Graphics.DrawProceduralNow(MeshTopology.Triangles, 6, BODY_LINE_NUM);
 
-        // Draw 33 world landmark points.
-        material.SetPass(3);
-        Graphics.DrawProceduralNow(MeshTopology.Triangles, 6, detecter.vertexCount);
+            // Draw 33 world landmark points.
+            material.SetPass(3);
+            Graphics.DrawProceduralNow(MeshTopology.Triangles, 6, detecter.vertexCount);
+        }
     }
 
     void OnApplicationQuit()

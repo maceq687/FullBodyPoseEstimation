@@ -1058,6 +1058,7 @@ MonoBehaviour:
   shader: {fileID: 4800000, guid: b16d5cfc5c250d34c9d535bea143d6c2, type: 3}
   humanExistThreshold: 0.5
   VNectModel: {fileID: 1468032513}
+  showSkeleton: 1
 --- !u!4 &665595554
 Transform:
   m_ObjectHideFlags: 0
@@ -1422,7 +1423,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c6834361c88fb94f8042d67ab8d7701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  webCamName: Integrated Webcam
+  webCamName: Kinect V2 Video Sensor
   webCamResolution: {x: 1920, y: 1080}
   staticInput: {fileID: 0}
   mirrorHorizontally: 0
