@@ -6,9 +6,17 @@
       "scopes": [
         "jp.ikep"
       ]
+    },
+    {
+      "name": "uOSC",
+      "url": "https://registry.npmjs.com",
+      "scopes": [
+        "com.hecomi"
+      ]
     }
   ],
   "dependencies": {
+    "com.hecomi.uosc": "2.1.0",
     "com.unity.animation.rigging": "0.2.7-preview",
     "com.unity.collab-proxy": "1.2.16",
     "com.unity.ide.rider": "1.2.1",

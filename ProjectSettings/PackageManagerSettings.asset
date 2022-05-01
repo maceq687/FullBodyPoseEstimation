@@ -26,6 +26,12 @@ MonoBehaviour:
     m_Scopes:
     - jp.ikep
     m_IsDefault: 0
+  - m_Id: scoped:uOSC
+    m_Name: uOSC
+    m_Url: https://registry.npmjs.com
+    m_Scopes:
+    - com.hecomi
+    m_IsDefault: 0
   m_UserSelectedRegistryName: 
   m_UserAddingNewScopedRegistry: 0
   m_RegistryInfoDraft:

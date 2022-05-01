@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.hecomi.uosc": {
+      "version": "2.1.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.com"
+    },
     "com.unity.animation.rigging": {
       "version": "0.2.7-preview",
       "depth": 0,
