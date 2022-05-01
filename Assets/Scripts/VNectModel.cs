@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Position index of joint point
@@ -135,6 +136,8 @@ public class VNectModel : MonoBehaviour
     public PoseVisualizer3D PoseVisualizer3D;
     public FaceManager FaceManager;
     public BodySourceView BodySourceView;
+    public GameObject Instruction;
+    private bool displayText = false;
 
 
     void Awake()
@@ -143,6 +146,8 @@ public class VNectModel : MonoBehaviour
         
         if (sceneName == "KinectScene")
             kinectScene = true;
+
+        Instruction.SetActive(displayText);
     }
 
     private void Update()
@@ -596,6 +601,7 @@ public class VNectModel : MonoBehaviour
 
     private void RunCalibration()
     {
+        Instruction.SetActive(true);
         if (!vrRunning)
         {
             Debug.Log("Avatar calibration will begin in 5 seconds, please stand in T-pose!");
@@ -604,6 +610,7 @@ public class VNectModel : MonoBehaviour
                 StartCoroutine(BodySourceView.KinectCalibrationRoutine(true, kinectTDimensionsCalculated => {
                     ScaleAvatar(kinectTDimensionsCalculated);
                     Debug.Log("Avatar calibration done!");
+                    Instruction.SetActive(false);
                 }));
             }
             else
@@ -611,6 +618,7 @@ public class VNectModel : MonoBehaviour
                 StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(true, poseTDimensionsCalculated => {
                     ScaleAvatar(poseTDimensionsCalculated);
                     Debug.Log("Avatar calibration done!");
+                    Instruction.SetActive(false);
                 }));
             }
         }
@@ -624,6 +632,7 @@ public class VNectModel : MonoBehaviour
                     StartCoroutine(BodySourceView.KinectCalibrationRoutine(false, kinectTDimensionsCalculated => {
                         BodySourceView.ScaleKinect(vrTDimensions, kinectTDimensionsCalculated);
                         Debug.Log("VR calibration done!");
+                        Instruction.SetActive(false);
                     }));
                 }
                 else
@@ -631,6 +640,7 @@ public class VNectModel : MonoBehaviour
                     StartCoroutine(PoseVisualizer3D.PoseCalibrationRoutine(false, poseTDimensionsCalculated => {
                         PoseVisualizer3D.ScalePose(vrTDimensions, poseTDimensionsCalculated);
                         Debug.Log("VR calibration done!");
+                        Instruction.SetActive(false);
                     }));
                 }
             }));
