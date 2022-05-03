@@ -149,9 +149,9 @@ public class PoseVisualizer3D : MonoBehaviour
         detecter.Dispose();
     }
 
-    public IEnumerator PoseCalibrationRoutine(bool delay, System.Action<Vector3> callback = null)
+    public IEnumerator PoseCalibrationRoutine(bool vrRunning, System.Action<Vector3> callback = null)
     {
-        if (delay)
+        if (!vrRunning)
             yield return new WaitForSeconds(5);
         Vector3 poseTDimensions = Vector3.zero;
         poseTDimensions.x = Vector3.Distance(detecter.GetPoseWorldLandmark(15), detecter.GetPoseWorldLandmark(16));
