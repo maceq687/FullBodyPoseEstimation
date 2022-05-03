@@ -147,7 +147,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 71056075}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: -1, z: -3}
+  m_LocalPosition: {x: 0, y: -0.5, z: -3}
   m_LocalScale: {x: 1, y: 1, z: 0}
   m_Children: []
   m_Father: {fileID: 883911945}
@@ -2199,7 +2199,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 640, y: 360}
+  m_SizeDelta: {x: 640, y: 640}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1426846125
 MonoBehaviour:
@@ -2366,7 +2366,6 @@ MonoBehaviour:
   SkeletonScale: 1
   ModelObject: {fileID: 1468032511}
   Nose: {fileID: 735118674}
-  vrRunning: 0
   PoseVisualizer3D: {fileID: 665595553}
   FaceManager: {fileID: 0}
   BodySourceView: {fileID: 0}

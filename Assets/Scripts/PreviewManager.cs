@@ -10,6 +10,7 @@ public class PreviewManager : MonoBehaviour
     private Canvas VirtualMirrorCanvas;
     private Camera VirtualMirrorCamera;
     private InputDevice rightController;
+    private bool lastPrimaryButtonValue = false;
     private bool WebCam = true;
     private bool VirtualCam = false;
 
@@ -26,8 +27,8 @@ public class PreviewManager : MonoBehaviour
 
     void Update()
     {
-        bool triggerValue;
-        if (UnityEngine.InputSystem.Keyboard.current.gKey.wasPressedThisFrame || (rightController.TryGetFeatureValue(CommonUsages.primaryButton, out triggerValue) && triggerValue))
+        bool primaryButtonValue = false;
+        if (UnityEngine.InputSystem.Keyboard.current.gKey.wasPressedThisFrame || (rightController.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButtonValue) && primaryButtonValue != lastPrimaryButtonValue && primaryButtonValue))
         {
             WebCam = !WebCam;
             VirtualCam = !VirtualCam;
@@ -35,5 +36,6 @@ public class PreviewManager : MonoBehaviour
             VirtualMirrorCamera.gameObject.SetActive(VirtualCam);
             WebCamPreview.SetActive(WebCam);
         }
-    }
+        lastPrimaryButtonValue = primaryButtonValue;
+    }        
 }

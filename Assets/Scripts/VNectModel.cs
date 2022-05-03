@@ -122,8 +122,8 @@ public class VNectModel : MonoBehaviour
     private InputDevice hmdDevice;
     private InputDevice leftController;
     private InputDevice rightController;
-    [HideInInspector]
-    public bool vrRunning = false;
+    private bool lastPrimaryButtonValue = false;
+    private bool vrRunning = false;
     private Vector3 hmdPosition;
     private Vector3 leftControllerPosition;
     private Vector3 rightControllerPosition;
@@ -198,8 +198,8 @@ public class VNectModel : MonoBehaviour
                 jointPoints[PositionIndex.rController.Int()].Pos3D = rightControllerPosition - hmdPosition + jointPoints[PositionIndex.phantomNose.Int()].Pos3D;
             }
             // Wrists rotations
-            jointPoints[PositionIndex.lController.Int()].Transform.rotation = leftControllerRotation * Quaternion.Euler(new Vector3(-180f, -90f, -45f));
-            jointPoints[PositionIndex.rController.Int()].Transform.rotation = rightControllerRotation * Quaternion.Euler(new Vector3(0f, 90f, -45f));
+            jointPoints[PositionIndex.lController.Int()].Transform.rotation = leftControllerRotation * Quaternion.Euler(new Vector3(-180f, -90f, -80f));
+            jointPoints[PositionIndex.rController.Int()].Transform.rotation = rightControllerRotation * Quaternion.Euler(new Vector3(0f, 90f, -80f));
             // Left elbow position
             Vector3 lElbowProjection = Vector3.Project((jointPoints[PositionIndex.lElbow.Int()].Pos3D - jointPoints[PositionIndex.lShoulder.Int()].Pos3D),
             (jointPoints[PositionIndex.lController.Int()].Pos3D - jointPoints[PositionIndex.lShoulder.Int()].Pos3D)) + jointPoints[PositionIndex.lShoulder.Int()].Pos3D;
@@ -215,10 +215,11 @@ public class VNectModel : MonoBehaviour
         }
 
         // Primary button on left controller triggers calibration
-        bool triggerValue;
-        if (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame || (leftController.TryGetFeatureValue(CommonUsages.primaryButton, out triggerValue) && triggerValue))
+        bool primaryButtonValue = false;
+        if (UnityEngine.InputSystem.Keyboard.current.spaceKey.wasPressedThisFrame || (leftController.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButtonValue) && primaryButtonValue != lastPrimaryButtonValue && primaryButtonValue))
             RunCalibration();
-        
+        lastPrimaryButtonValue = primaryButtonValue;
+
         if (jointPoints != null)
             PoseUpdate();
     }
