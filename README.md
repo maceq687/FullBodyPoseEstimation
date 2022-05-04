@@ -27,5 +27,9 @@ Calibration can be triggered in either scene by pressing space bar key (or left 
 After triggering the calibration you should stand in the T-pose for 6 seconds.  
 Calibration have to be redone after each application restart or scene change.
 
+### Preview
+
+Preview screen can display either live webcam picture or virtual mirror. It can be toggled by pressing 'g' key (or right controller primary button - in VR). 
+
 ### Acknowledgments
 Full body rig solution created based on the solution from [ThreeDPoseUnityBarracuda](https://github.com/digital-standard/ThreeDPoseUnityBarracuda) project.
