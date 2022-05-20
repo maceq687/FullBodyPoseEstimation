@@ -8,6 +8,8 @@ Those techniques include:
 - Neural network based pose estimation using a single webcam ([BlazePoseBarracuda](https://github.com/creativeIKEP/BlazePoseBarracuda))
 - Depth map based pose estimation using [Kinect v2](https://developer.microsoft.com/en-us/windows/kinect/)
 
+<img src="bones.gif" width="600" height="338" />  
+
 ## How to start
 
 **PoseScene** - BlazePose based pose estimation integrated with HMD and controllers tracking  
