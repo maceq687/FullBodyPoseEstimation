@@ -37,5 +37,8 @@ Calibration have to be redone after each application restart or scene change. If
 
 Preview screen can display either live webcam picture or virtual mirror. It can be toggled by pressing 'g' key (or right controller primary button - in VR). 
 
+<img src="PoseScene_demo.gif" width="600" height="338" />  
+
 ### Acknowledgments
+
 Full body rig solution created based on the solution from [ThreeDPoseUnityBarracuda](https://github.com/digital-standard/ThreeDPoseUnityBarracuda) project.
